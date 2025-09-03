@@ -1,0 +1,14 @@
+<h1>Editar Usuario {{ usuario_id }}</h1>
+<form method="POST">
+  {% csrf_token %}
+  <label>Nombre:</label>
+  <input type="text" name="nombre" value="Juan">
+  <br>
+  <label>Apellido:</label>
+  <input type="text" name="apellido" value="Pérez">
+  <br>
+  <button type="submit">Guardar cambios</button>
+</form>
+
+<a href="{% url 'usuarios_listar' %}">⬅️ Volver a Usuarios</a>
+<a href="{% url 'home' %}">🏠 Home</a>
