@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Crear Reserva{% endblock %}
+{% block content %}
+  <h1>Crear Reserva</h1>
+
+  <div class="card">
+    <form method="POST">
+      {% csrf_token %}
+      
+      <label for="patente">Patente:</label>
+      <input type="text" name="patente" id="patente" required>
+      <br><br>
+
+      <label for="estacionamiento_id">Seleccionar Estacionamiento:</label>
+      <select name="estacionamiento_id" id="estacionamiento_id" required>
+        {% for e in estacionamientos %}
+          {% if e.estado == "Disponible" %}
+            <option value="{{ e.id }}">ID {{ e.id }} - {{ e.tipo }}</option>
+          {% endif %}
+        {% endfor %}
+      </select>
+      <br><br>
+
+      <button type="submit" class="button">Guardar</button>
+    </form>
+  </div>
+
+  <div class="actions">
+    <a href="{% url 'reservas_listar' %}" class="button">Volver</a>
+  </div>
+{% endblock %}

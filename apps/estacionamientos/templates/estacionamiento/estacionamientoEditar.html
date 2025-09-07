@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Eliminar Estacionamiento{% endblock %}
+{% block content %}
+  <h1>Eliminar Estacionamiento</h1>
+
+  <div class="card">
+    <p>¿Estás seguro que deseas eliminar el estacionamiento con ID <strong>{{ id }}</strong>?</p>
+  </div>
+
+  <div class="actions">
+    <a href="{% url 'estacionamientos_listar' %}" class="button">Cancelar</a>
+    <a href="{% url 'estacionamientos_listar' %}" class="button">Confirmar</a>
+  </div>
+{% endblock %}

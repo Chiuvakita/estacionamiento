@@ -1,0 +1,125 @@
+:root {
+  --primary: #2563eb;
+  --primary-dark: #1e40af;
+  --bg: #f3f4f6;
+  --bg-card: #ffffff;
+  --bg-alt: #e5e7eb;
+  --text: #111827;
+  --text-light: #6b7280;
+  --radius: 10px;
+  --shadow: 0 6px 12px rgba(0,0,0,0.08);
+}
+
+/* ==== GLOBAL ==== */
+body {
+  font-family: "Segoe UI", Roboto, Arial, sans-serif;
+  background: linear-gradient(160deg, var(--bg) 0%, #fafafa 100%);
+  color: var(--text);
+  margin: 0;
+  padding-top: 70px; /* espacio para navbar fija */
+}
+
+/* ==== NAVBAR ==== */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background: linear-gradient(90deg, var(--primary) 0%, var(--primary-dark) 100%);
+  padding: 15px 30px;
+  display: flex;
+  justify-content: center;
+  gap: 25px;
+  box-shadow: var(--shadow);
+  z-index: 1000;
+}
+
+.navbar a {
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+  padding: 6px 12px;
+  border-radius: var(--radius);
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.navbar a:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+}
+
+/* ==== CONTENIDO ==== */
+main {
+  padding: 40px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+h1 {
+  color: var(--primary-dark);
+  margin-bottom: 30px;
+  font-size: 2rem;
+  text-align: center;
+}
+
+/* ==== BOTONES ==== */
+a.button, button {
+  display: inline-block;
+  margin: 8px;
+  padding: 12px 22px;
+  background: var(--primary);
+  color: white;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  text-decoration: none;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  border: none;
+  cursor: pointer;
+}
+
+a.button:hover, button:hover {
+  background: var(--primary-dark);
+  transform: scale(1.05);
+}
+
+/* ==== TARJETAS ==== */
+.card {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 20px;
+  margin-bottom: 20px;
+  transition: transform 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+}
+
+/* ==== TABLAS ==== */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  margin-top: 20px;
+}
+
+th, td {
+  padding: 14px;
+  text-align: left;
+  border-bottom: 1px solid var(--bg-alt);
+}
+
+th {
+  background: var(--bg-alt);
+  color: var(--text-light);
+  font-weight: 600;
+}
+
+tr:hover td {
+  background: #f9fafb;
+}

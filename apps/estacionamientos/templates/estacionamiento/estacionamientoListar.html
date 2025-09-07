@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Lista Estacionamientos{% endblock %}
+{% block content %}
+  <h1>Lista de Estacionamientos</h1>
+
+  <div class="card">
+    <table>
+      <tr>
+        <th>ID</th>
+        <th>Estado</th>
+        <th>Tipo</th>
+        <th>Acciones</th>
+      </tr>
+      {% for e in estacionamientos %}
+      <tr>
+        <td>{{ e.id }}</td>
+        <td>{{ e.estado }}</td>
+        <td>{{ e.tipo }}</td>
+        <td>
+          <div class="actions">
+            <a href="{% url 'estacionamiento_crear' %}" class="button">Crear Estacionamiento</a>
+            <a href="{% url 'reservas_listar' %}" class="button">Ver Reservas</a>
+            <a href="{% url 'main_ingreso' %}" class="button">Ingreso de Vehículos</a>
+          </div>
+
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+
+  <div class="actions">
+    <a href="{% url 'estacionamiento_crear' %}" class="button">Crear Estacionamiento</a>
+  </div>
+{% endblock %}

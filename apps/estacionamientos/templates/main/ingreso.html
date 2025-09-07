@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Ingreso de Vehículo{% endblock %}
+{% block content %}
+  <h1>Ingreso de Vehículo (Administrador)</h1>
+
+  <div class="card">
+    <form method="POST">
+      {% csrf_token %}
+      <label for="patente">Patente del vehículo:</label>
+      <input type="text" id="patente" name="patente" required>
+      <br><br>
+      <button type="submit" class="button">Ingresar</button>
+    </form>
+  </div>
+
+  <div class="actions">
+    <a href="{% url 'estacionamientos_listar' %}" class="button">Volver a Estacionamientos</a>
+  </div>
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Terminar Reserva{% endblock %}
+{% block content %}
+  <h1>Terminar Reserva</h1>
+
+  <div class="card">
+    <p>¿Deseas terminar la reserva con ID <strong>{{ id }}</strong>?</p>
+  </div>
+
+  <div class="actions">
+    <a href="{% url 'reservas_listar' %}" class="button">Cancelar</a>
+    <a href="{% url 'reserva_terminar' id %}" class="button">Confirmar</a>
+  </div>
+{% endblock %}
