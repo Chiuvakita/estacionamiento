@@ -1,0 +1,23 @@
+<form method="post" action="{{ action_url }}">
+    {% csrf_token %}
+    <label>RUT:</label>
+    <input type="number" name="rut" value="{{ usuario.rut|default_if_none:'' }}" {% if rutReadonly %}readonly{% endif %} required><br>
+    <label>Nombre:</label>
+    <input type="text" name="nombre" value="{{ usuario.nombre|default_if_none:'' }}" required><br>
+    <label>Apellido Paterno:</label>
+    <input type="text" name="apellidoPaterno" value="{{ usuario.apellidoPaterno|default_if_none:'' }}" required><br>
+    <label>Apellido Materno:</label>
+    <input type="text" name="apellidoMaterno" value="{{ usuario.apellidoMaterno|default_if_none:'' }}" required><br>
+    <label>Número:</label>
+    <input type="text" name="numeroTelefono" value="{{ usuario.numeroTelefono|default_if_none:'' }}" required><br>
+    <label>Rol:</label>
+    <select name="rol" required>
+      <option value="Administrador" {% if usuario.rol == "Administrador" %}selected{% endif %}>Administrador</option>
+      <option value="Empleado" {% if usuario.rol == "Empleado" %}selected{% endif %}>Empleado</option>
+    </select>
+    <div class="checkbox-container">
+      <input type="checkbox" name="discapacidad" value="true" {% if usuario.discapacidad %}checked{% endif %}>
+      <label>Discapacidad</label>
+    </div>
+    <button type="submit">{{ botonTexto }}</button>
+</form>

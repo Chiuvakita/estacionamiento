@@ -1,14 +1,17 @@
-<h1>Crear Usuario</h1>
-<form method="POST">
-  {% csrf_token %}
-  <label>Nombre:</label>
-  <input type="text" name="nombre">
-  <br>
-  <label>Apellido:</label>
-  <input type="text" name="apellido">
-  <br>
-  <button type="submit">Guardar</button>
-</form>
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crear Usuario</title>
+  <link rel="stylesheet" href="{% static 'css/crear.css' %}">
+</head>
+<body>
+  <div class="container">
+    <h1>Crear Usuario</h1>
+    {% include '_formUsuario.html' with action_url=request.path usuario=None rutReadonly=False botonTexto="Crear" %}
+  </div>
 
-<a href="{% url 'usuarios_listar' %}">⬅️ Volver a Usuarios</a>
-<a href="{% url 'home' %}">🏠 Home</a>
+</body>
+</html>
