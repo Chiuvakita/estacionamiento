@@ -1,31 +1,40 @@
 {% extends "base.html" %}
-{% block title %}Crear Reserva{% endblock %}
+
 {% block content %}
-  <h1>Crear Reserva</h1>
+<main>
+  <h1>Nueva Reserva</h1>
 
   <div class="card">
-    <form method="POST">
+    <form id="formReserva" method="post">
       {% csrf_token %}
-      
-      <label for="patente">Patente:</label>
-      <input type="text" name="patente" id="patente" required>
-      <br><br>
 
-      <label for="estacionamiento_id">Seleccionar Estacionamiento:</label>
-      <select name="estacionamiento_id" id="estacionamiento_id" required>
+      <label for="patente">Patente:</label>
+      <input type="text" id="patente" name="patente" required>
+
+      <label for="estacionamiento_id">Estacionamiento:</label>
+      <select id="estacionamiento_id" name="estacionamiento_id" required>
         {% for e in estacionamientos %}
           {% if e.estado == "Disponible" %}
-            <option value="{{ e.id }}">ID {{ e.id }} - {{ e.tipo }}</option>
+            <option value="{{ e.id }}">Estacionamiento {{ e.id }} ({{ e.tipo }})</option>
           {% endif %}
         {% endfor %}
       </select>
-      <br><br>
 
-      <button type="submit" class="button">Guardar</button>
+      <label for="fechaInicio">Fecha y hora de inicio:</label>
+      <input type="datetime-local" id="fechaInicio" name="fechaInicio" required>
+
+      <label for="duracion">Duración:</label>
+      <select id="duracion" name="duracion" required>
+        <option value="1">1 hora</option>
+        <option value="2">2 horas</option>
+        <option value="3">3 horas</option>
+      </select>
+
+      <div style="margin-top: 20px; text-align: center;">
+        <button type="submit" class="button button-success">Crear Reserva</button>
+        <a href="{% url 'listarReserva' %}" class="button button-danger">Cancelar</a>
+      </div>
     </form>
   </div>
-
-  <div class="actions">
-    <a href="{% url 'reservas_listar' %}" class="button">Volver</a>
-  </div>
+</main>
 {% endblock %}

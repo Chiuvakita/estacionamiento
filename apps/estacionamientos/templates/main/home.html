@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}Inicio{% endblock %}
+
+{% block content %}
+<h1>Sistema de Estacionamiento</h1>
+
+<!-- Formulario ingreso -->
+<div class="card">
+  <h2>Ingresar Auto</h2>
+  <form method="POST">
+    {% csrf_token %}
+    <label for="patente">Patente:</label>
+    <input type="text" id="patente" name="patente" required>
+    <br><br>
+
+    <label>Modo:</label>
+    <select name="modo" id="modo" onchange="toggleSelect()">
+      <option value="auto">Automático</option>
+      <option value="especifico">Elegir espacio</option>
+    </select>
+    <br><br>
+
+    <div id="selectEstacionamiento" style="display:none;">
+      <label for="estacionamiento_id">Espacio:</label>
+      <select name="estacionamiento_id" id="estacionamiento_id">
+        {% for e in estacionamientos %}
+          {% if e.estado == "Disponible" %}
+            <option value="{{ e.id }}">ID {{ e.id }} - {{ e.tipo }}</option>
+          {% endif %}
+        {% endfor %}
+      </select>
+    </div>
+    <br><br>
+    <button type="submit" class="button">Ingresar</button>
+  </form>
+</div>
+
+<br>
+
+<!-- Mostrar disponibles -->
+<div class="card">
+  <h2>Espacios Disponibles: {{ disponibles }}</h2>
+</div>
+
+<br>
+
+<!-- Ocupados actuales -->
+<div class="card">
+  <h2>Autos Ocupando Espacios</h2>
+  <table>
+    <tr>
+      <th>ID</th>
+      <th>Patente</th>
+      <th>Tipo</th>
+      <th>Acción</th>
+    </tr>
+    {% for e in ocupados %}
+    <tr>
+      <td>{{ e.id }}</td>
+      <td>{{ e.patente }}</td>
+      <td>{{ e.tipo }}</td>
+      <td>
+        <a href="{% url 'marcarSalida' e.id %}" class="button">Marcar salida</a>
+      </td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="4">No hay autos ocupando espacios</td></tr>
+    {% endfor %}
+  </table>
+</div>
+
+<br>
+
+<!-- Buscar patente para finalizar -->
+<div class="card">
+  <h2>Finalizar por Patente</h2>
+  <form method="POST" action="{% url 'marcarSalidaPatente' %}">
+    {% csrf_token %}
+    <label for="patente">Patente:</label>
+    <input type="text" id="patente" name="patente" required>
+    <button type="submit" class="button">Finalizar</button>
+  </form>
+</div>
+
+<br>
+
+<!-- Ir al listado -->
+<div class="actions">
+  <a href="{% url 'listarEstacionamiento' %}" class="button">Ver Estacionamientos (Admin)</a>
+  <a href="{% url 'listarHistorial' %}" class="button">Ver Historial</a>
+</div>
+
+<script>
+function toggleSelect() {
+  document.getElementById("selectEstacionamiento").style.display =
+    document.getElementById("modo").value === "especifico" ? "block" : "none";
+}
+</script>
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Historial{% endblock %}
+
+{% block content %}
+<h1>Historial del Día</h1>
+
+<div class="card">
+  <p>Total de Reservas: <strong>{{ total_reservas }}</strong></p>
+</div>
+
+<br>
+
+<div class="card">
+  <table>
+    <tr>
+      <th>ID</th>
+      <th>Patente</th>
+      <th>Espacio</th>
+      <th>Tipo</th>
+      <th>Inicio</th>
+      <th>Término</th>
+      <th>¿Reserva?</th>
+    </tr>
+    {% for r in reservas %}
+    <tr>
+      <td>{{ r.id }}</td>
+      <td>{{ r.patente }}</td>
+      <td>{{ r.estacionamiento_id }}</td>
+      <td>{{ r.tipo }}</td>
+      <td>{{ r.fechaInicio }}</td>
+      <td>{% if r.fechaTermino %}{{ r.fechaTermino }}{% else %}-{% endif %}</td>
+      <td>{% if r.reserva %}Sí{% else %}No{% endif %}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="7">No hay historial registrado</td></tr>
+    {% endfor %}
+  </table>
+</div>
+
+<div class="actions">
+  <a href="{% url 'home' %}" class="button">Volver al Inicio</a>
+</div>
+{% endblock %}

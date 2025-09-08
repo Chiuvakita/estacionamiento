@@ -10,11 +10,12 @@
   <!-- Navbar -->
   <nav class="navbar">
     <a href="{% url 'home' %}">Inicio</a>
-    <a href="{% url 'estacionamientos_listar' %}">Estacionamientos</a>
-    <a href="{% url 'reservas_listar' %}">Reservas</a>
+    <a href="{% url 'listarEstacionamiento' %}">Estacionamientos</a>
+    <a href="{% url 'listarReserva' %}">Reservas</a>
+    <a href="{% url 'listarHistorial' %}">Historial</a>
   </nav>
 
-  <!-- Contenido -->
+  <!-- Contenido principal -->
   <main>
     {% block content %}
     {% endblock %}

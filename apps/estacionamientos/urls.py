@@ -2,18 +2,32 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    # Estacionamientos
-    path("", views.listar_estacionamiento, name="estacionamientos_listar"),
-    path("crear/", views.crear_estacionamiento, name="estacionamiento_crear"),
-    path("editar/<int:id>/", views.editar_estacionamiento, name="editar_estacionamiento"),
-    path("eliminar/<int:id>/", views.eliminar_estacionamiento, name="estacionamiento_eliminar"),
+    # ====================
+    # HOME
+    # ====================
+    path("", views.home, name="home"),
+    path("marcarSalidaPatente/", views.marcarSalidaPatente, name="marcarSalidaPatente"),
 
-    # Reservas
-    path("reservas/", views.listar_reserva, name="reservas_listar"),
-    path("reservas/crear/", views.crear_reserva, name="reserva_crear"),
-    path("reservas/terminar/<int:id>/", views.terminar_reserva, name="reserva_terminar"),
+    # ====================
+    # ESTACIONAMIENTOS (Admin)
+    # ====================
+    path("estacionamientos/", views.listarEstacionamiento, name="listarEstacionamiento"),
+    path("estacionamientos/crear/", views.crearEstacionamiento, name="crearEstacionamiento"),
+    path("estacionamientos/crearMasivo/", views.crearEstacionamientosMasivo, name="crearEstacionamientosMasivo"),
+    path("estacionamientos/editar/<int:id>/", views.editarEstacionamiento, name="editarEstacionamiento"),
+    path("estacionamientos/eliminar/<int:id>/", views.eliminarEstacionamiento, name="eliminarEstacionamiento"),
+    path("estacionamientos/marcarSalida/<int:id>/", views.marcarSalida, name="marcarSalida"),
+    path("estacionamientos/eliminarTodos/", views.eliminarTodosEstacionamientos, name="eliminarTodosEstacionamientos"),
 
-    # Main (admin)
-    path("main/ingreso/", views.main_ingreso, name="main_ingreso"),
+    # ====================
+    # RESERVAS (Cliente)
+    # ====================
+    path("reservas/", views.listarReserva, name="listarReserva"),
+    path("reservas/crear/", views.crearReserva, name="crearReserva"),
+    path("reservas/terminar/<int:id>/", views.terminarReserva, name="terminarReserva"),
+
+    # ====================
+    # HISTORIAL
+    # ====================
+    path("historial/", views.listarHistorial, name="listarHistorial"),
 ]
-

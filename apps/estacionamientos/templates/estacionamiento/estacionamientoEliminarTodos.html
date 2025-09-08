@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Eliminar Todos{% endblock %}
+
+{% block content %}
+  <h1>Eliminar Todos los Estacionamientos</h1>
+
+  <div class="card">
+    <p>¿Estás seguro de que quieres eliminar <strong>todos</strong> los estacionamientos y reservas asociadas?</p>
+    <form method="POST">
+      {% csrf_token %}
+      <button type="submit" class="button button-danger">Sí, eliminar todos</button>
+      <a href="{% url 'listarEstacionamiento' %}" class="button">Cancelar</a>
+    </form>
+  </div>
+{% endblock %}

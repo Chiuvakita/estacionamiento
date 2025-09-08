@@ -1,36 +1,48 @@
 {% extends "base.html" %}
-{% block title %}Lista Estacionamientos{% endblock %}
+{% block title %}Lista de Estacionamientos{% endblock %}
+
 {% block content %}
-  <h1>Lista de Estacionamientos</h1>
+  <h1>Gestión de Estacionamientos (Admin)</h1>
 
   <div class="card">
-    <table>
-      <tr>
-        <th>ID</th>
-        <th>Estado</th>
-        <th>Tipo</th>
-        <th>Acciones</th>
-      </tr>
-      {% for e in estacionamientos %}
-      <tr>
-        <td>{{ e.id }}</td>
-        <td>{{ e.estado }}</td>
-        <td>{{ e.tipo }}</td>
-        <td>
-          <div class="actions">
-            <a href="{% url 'estacionamiento_crear' %}" class="button">Crear Estacionamiento</a>
-            <a href="{% url 'reservas_listar' %}" class="button">Ver Reservas</a>
-            <a href="{% url 'main_ingreso' %}" class="button">Ingreso de Vehículos</a>
-          </div>
+      <div class="actions">
+    <a href="{% url 'crearEstacionamiento' %}" class="button">Crear Estacionamiento</a>
+    <a href="{% url 'crearEstacionamientosMasivo' %}" class="button">Crear Masivo</a>
+    <a href="{% url 'home' %}" class="button">Ingreso de Autos</a>
+    <a href="{% url 'eliminarTodosEstacionamientos' %}" class="button button-danger">Eliminar Todos</a>
+  </div>
 
-          </div>
-        </td>
-      </tr>
-      {% endfor %}
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Estado</th>
+          <th>Tipo</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for e in estacionamientos %}
+        <tr>
+          <td>{{ e.id }}</td>
+          <td>{{ e.estado }}</td>
+          <td>{{ e.tipo }}</td>
+          <td>
+            {% if e.estado == "Ocupado" %}
+            {% endif %}
+            <a href="{% url 'editarEstacionamiento' e.id %}" class="button">Editar</a>
+            <a href="{% url 'eliminarEstacionamiento' e.id %}" class="button button-danger">Eliminar</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="7">No hay estacionamientos creados</td>
+        </tr>
+        {% endfor %}
+      </tbody>
     </table>
   </div>
 
-  <div class="actions">
-    <a href="{% url 'estacionamiento_crear' %}" class="button">Crear Estacionamiento</a>
-  </div>
+
+
 {% endblock %}

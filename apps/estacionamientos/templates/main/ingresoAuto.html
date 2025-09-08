@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Ingreso de Autos{% endblock %}
+{% block content %}
+<h1>Ingreso de Autos</h1>
+<div class="card">
+  <form method="POST">
+    {% csrf_token %}
+    <label for="patente">Patente:</label>
+    <input type="text" id="patente" name="patente" required>
+    <br><br>
+    <label>Modo:</label>
+    <select name="modo" id="modo" onchange="toggleSelect()">
+      <option value="auto">Automático</option>
+      <option value="especifico">Elegir espacio</option>
+    </select>
+    <br><br>
+    <div id="selectEstacionamiento" style="display:none;">
+      <label for="estacionamiento_id">Espacio:</label>
+      <select name="estacionamiento_id" id="estacionamiento_id">
+        {% for e in estacionamientos %}
+          <option value="{{ e.id }}">ID {{ e.id }} - {{ e.tipo }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <br><br>
+    <button type="submit" class="button">Ingresar</button>
+  </form>
+</div>
+<script>
+function toggleSelect() {
+  document.getElementById("selectEstacionamiento").style.display =
+    document.getElementById("modo").value === "especifico" ? "block" : "none";
+}
+</script>
+{% endblock %}
