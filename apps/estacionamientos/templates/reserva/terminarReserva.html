@@ -1,14 +1,15 @@
 {% extends "base.html" %}
 {% block title %}Terminar Reserva{% endblock %}
 {% block content %}
-  <h1>Terminar Reserva</h1>
 
-  <div class="card">
-    <p>¿Deseas terminar la reserva con ID <strong>{{ id }}</strong>?</p>
-  </div>
-
-  <div class="actions">
+<h1>Terminar Reserva</h1>
+<div class="card">
+  <p>¿Seguro que quieres finalizar la reserva?</p>
+  <form method="post">
+    {% csrf_token %}
+    <button class="button button-danger">Finalizar</button>
     <a href="{% url 'listarReserva' %}" class="button">Cancelar</a>
-    <a href="{% url 'terminarReserva' id %}" class="button">Confirmar</a>
-  </div>
+  </form>
+</div>
+
 {% endblock %}

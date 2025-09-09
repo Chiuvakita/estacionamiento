@@ -1,15 +1,15 @@
 {% extends "base.html" %}
 {% block title %}Eliminar Estacionamiento{% endblock %}
 {% block content %}
-  <h1>Eliminar Estacionamiento</h1>
 
-  <div class="card">
-    <p>¿Estás seguro de que deseas eliminar el estacionamiento con ID <strong>{{ id }}</strong>?</p>
+<h1>Eliminar Estacionamiento</h1>
+<div class="card">
+  <p>¿Seguro que deseas eliminar el estacionamiento #{{ id }}?</p>
+  <form method="post">
+    {% csrf_token %}
+    <button class="button button-danger">Confirmar</button>
+    <a href="{% url 'listarEstacionamiento' %}" class="button">Cancelar</a>
+  </form>
+</div>
 
-    <form method="POST">
-      {% csrf_token %}
-      <button type="submit" class="button button-danger">Sí, Eliminar</button>
-      <a href="{% url 'listarEstacionamiento' %}" class="button">Cancelar</a>
-    </form>
-  </div>
 {% endblock %}

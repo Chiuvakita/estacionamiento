@@ -1,15 +1,19 @@
 {% extends "base.html" %}
-{% block title %}Eliminar Todos{% endblock %}
-
+{% load static %}
+{% block title %}Eliminar todos{% endblock %}
 {% block content %}
-  <h1>Eliminar Todos los Estacionamientos</h1>
 
-  <div class="card">
-    <p>¿Estás seguro de que quieres eliminar <strong>todos</strong> los estacionamientos y reservas asociadas?</p>
-    <form method="POST">
-      {% csrf_token %}
-      <button type="submit" class="button button-danger">Sí, eliminar todos</button>
-      <a href="{% url 'listarEstacionamiento' %}" class="button">Cancelar</a>
-    </form>
-  </div>
+<h1>Eliminar todos los estacionamientos</h1>
+<div class="card">
+  <p>Esta acción eliminará todos los registros de estacionamientos y reservas.</p>
+  <form method="post">
+    {% csrf_token %}
+    <button class="button button-danger">Eliminar todo</button>
+    <a href="{% url 'listarEstacionamiento' %}" class="button">Cancelar</a>
+  </form>
+</div>
+<script src="{% static 'js/validaciones.js' %}"></script>
+<script>
+  document.querySelectorAll(".button-danger").forEach(btn => btn.addEventListener("click", confirmarAccion));
+</script>
 {% endblock %}

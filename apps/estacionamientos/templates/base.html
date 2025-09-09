@@ -7,7 +7,6 @@
   <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
-  <!-- Navbar -->
   <nav class="navbar">
     <a href="{% url 'home' %}">Inicio</a>
     <a href="{% url 'listarEstacionamiento' %}">Estacionamientos</a>
@@ -15,7 +14,6 @@
     <a href="{% url 'listarHistorial' %}">Historial</a>
   </nav>
 
-  <!-- Contenido principal -->
   <main>
     {% block content %}
     {% endblock %}

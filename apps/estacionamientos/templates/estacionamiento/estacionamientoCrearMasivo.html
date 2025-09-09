@@ -1,25 +1,19 @@
 {% extends "base.html" %}
-{% block title %}Crear Estacionamientos{% endblock %}
-
+{% load static %}
+{% block title %}Crear Estacionamientos Masivo{% endblock %}
 {% block content %}
-  <h1>Crear Estacionamientos</h1>
 
-  <div class="card">
-    <form method="POST">
-      {% csrf_token %}
-      <label for="cantidad">Cantidad:</label>
-      <input type="number" id="cantidad" name="cantidad" min="1" value="1" required>
-      <br><br>
+<h1>Crear Estacionamientos Masivo</h1>
+<div class="card">
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button class="button">Crear</button>
+  </form>
+</div>
 
-      <label for="tipo">Tipo:</label>
-      <select id="tipo" name="tipo">
-        <option value="Normal">Normal</option>
-        <option value="Discapacitado">Discapacitado</option>
-        <option value="VIP">VIP</option>
-      </select>
-      <br><br>
-
-      <button type="submit" class="button">Crear</button>
-    </form>
-  </div>
+<script src="{% static 'js/validaciones.js' %}"></script>
+<script>
+  document.querySelector("form").addEventListener("submit", validarEditarEstacionamiento);
+</script>
 {% endblock %}

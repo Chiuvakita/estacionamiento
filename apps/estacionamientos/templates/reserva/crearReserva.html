@@ -1,40 +1,48 @@
 {% extends "base.html" %}
-
+{% load static %}
+{% block title %}Crear Reserva{% endblock %}
 {% block content %}
-<main>
-  <h1>Nueva Reserva</h1>
 
-  <div class="card">
-    <form id="formReserva" method="post">
-      {% csrf_token %}
+<h1>Crear Reserva</h1>
+<div class="card">
 
-      <label for="patente">Patente:</label>
-      <input type="text" id="patente" name="patente" required>
+  <!-- Mensaje de error -->
+  {% if error %}
+    <div style="color: red; font-weight: bold; margin-bottom: 15px;">
+      {{ error }}
+    </div>
+  {% endif %}
 
-      <label for="estacionamiento_id">Estacionamiento:</label>
-      <select id="estacionamiento_id" name="estacionamiento_id" required>
-        {% for e in estacionamientos %}
-          {% if e.estado == "Disponible" %}
-            <option value="{{ e.id }}">Estacionamiento {{ e.id }} ({{ e.tipo }})</option>
-          {% endif %}
-        {% endfor %}
-      </select>
+  <!-- Formulario -->
+  <form method="post">
+    {% csrf_token %}
 
-      <label for="fechaInicio">Fecha y hora de inicio:</label>
-      <input type="datetime-local" id="fechaInicio" name="fechaInicio" required>
+    {{ form.patente.label_tag }} {{ form.patente }}
+    <br>
 
-      <label for="duracion">Duración:</label>
-      <select id="duracion" name="duracion" required>
-        <option value="1">1 hora</option>
-        <option value="2">2 horas</option>
-        <option value="3">3 horas</option>
-      </select>
+    {{ form.fecha_inicio.label_tag }}
+    <input type="datetime-local" name="fecha_inicio" required>
+    <br>
 
-      <div style="margin-top: 20px; text-align: center;">
-        <button type="submit" class="button button-success">Crear Reserva</button>
-        <a href="{% url 'listarReserva' %}" class="button button-danger">Cancelar</a>
-      </div>
-    </form>
-  </div>
-</main>
+    {{ form.duracion.label_tag }} {{ form.duracion }}
+    <br>
+
+    <label>Estacionamiento</label>
+    <select name="estacionamiento_id" required>
+      {% for e in estacionamientos %}
+        <option value="{{ e.id }}">#{{ e.id }} - {{ e.tipo }}</option>
+      {% endfor %}
+    </select>
+    <br>
+
+    <button class="button">Guardar</button>
+  </form>
+
+</div>
+
+<script src="{% static 'js/validaciones.js' %}"></script>
+<script>
+  document.querySelector("form").addEventListener("submit", validarReserva);
+</script>
+
 {% endblock %}

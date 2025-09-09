@@ -1,12 +1,8 @@
-from django.shortcuts import render, redirect
-from datetime import datetime, timedelta
-
-# ===========================
-# Simulación de base de datos
-# ===========================
-estacionamientos = []
-reservas = []    
-historial = []    
+from django.shortcuts import render, redirect, get_object_or_404
+from django.utils import timezone
+from datetime import timedelta
+from .models import Estacionamiento, Reserva, Historial
+from .forms import EstacionamientoForm, EstacionamientosMasivoForm, ReservaCrearForm
 
 
 # ===========================
@@ -18,33 +14,30 @@ def home(request):
         modo = request.POST.get("modo")
 
         if modo == "especifico":
-            estId = int(request.POST.get("estacionamiento_id"))
-            estacionamiento = next((e for e in estacionamientos if e["id"] == estId and e["estado"] == "Disponible"), None)
+            est_id = int(request.POST.get("estacionamiento_id"))
+            estacionamiento = Estacionamiento.objects.filter(pk=est_id, estado="D").first()
         else:
-            estacionamiento = next((e for e in estacionamientos if e["estado"] == "Disponible"), None)
+            estacionamiento = Estacionamiento.objects.filter(estado="D").first()
 
         if estacionamiento:
-            estacionamiento["estado"] = "Ocupado"
-            estacionamiento["patente"] = patente
-            estacionamiento["fechaInicio"] = datetime.now()
-            estacionamiento["fechaTermino"] = None
+            estacionamiento.estado = "O"
+            estacionamiento.patente = patente
+            estacionamiento.fecha_inicio = timezone.now()
+            estacionamiento.fecha_termino = None
+            estacionamiento.save()
 
-            # Guardamos en historial (NO en reservas)
-            movimiento = {
-                "id": len(historial) + 1,
-                "estacionamiento_id": estacionamiento["id"],
-                "patente": patente,
-                "fechaInicio": datetime.now(),
-                "fechaTermino": None,
-                "tipo": estacionamiento["tipo"],
-                "reserva": False
-            }
-            historial.append(movimiento)
+            Historial.objects.create(
+                estacionamiento=estacionamiento,
+                patente=patente,
+                fecha_inicio=estacionamiento.fecha_inicio,
+                es_reserva=False
+            )
 
         return redirect("home")
 
-    disponibles = sum(1 for e in estacionamientos if e["estado"] == "Disponible")
-    ocupados = [e for e in estacionamientos if e["estado"] == "Ocupado"]
+    disponibles = Estacionamiento.objects.filter(estado="D").count()
+    ocupados = Estacionamiento.objects.filter(estado="O")
+    estacionamientos = Estacionamiento.objects.all().order_by("id")
 
     return render(request, "main/home.html", {
         "disponibles": disponibles,
@@ -54,16 +47,16 @@ def home(request):
 
 
 def marcarSalida(request, id):
-    estacionamiento = next((e for e in estacionamientos if e["id"] == id), None)
-    if estacionamiento:
-        estacionamiento["estado"] = "Disponible"
-        estacionamiento["patente"] = None
-        estacionamiento["fechaTermino"] = datetime.now()
+    est = get_object_or_404(Estacionamiento, pk=id)
+    est.estado = "D"
+    est.patente = None
+    est.fecha_termino = timezone.now()
+    est.save()
 
-        # Buscar en historial
-        mov = next((r for r in historial if r["estacionamiento_id"] == id and r["fechaTermino"] is None), None)
-        if mov:
-            mov["fechaTermino"] = datetime.now()
+    mov = Historial.objects.filter(estacionamiento=est, fecha_termino__isnull=True).last()
+    if mov:
+        mov.fecha_termino = est.fecha_termino
+        mov.save()
 
     return redirect("home")
 
@@ -71,81 +64,81 @@ def marcarSalida(request, id):
 def marcarSalidaPatente(request):
     if request.method == "POST":
         patente = request.POST.get("patente")
-        estacionamiento = next((e for e in estacionamientos if e["patente"] == patente), None)
-        if estacionamiento:
-            estacionamiento["estado"] = "Disponible"
-            estacionamiento["patente"] = None
-            estacionamiento["fechaTermino"] = datetime.now()
+        est = Estacionamiento.objects.filter(patente=patente).first()
+        if est:
+            est.estado = "D"
+            est.patente = None
+            est.fecha_termino = timezone.now()
+            est.save()
 
-            mov = next((r for r in historial if r["patente"] == patente and r["fechaTermino"] is None), None)
+            mov = Historial.objects.filter(estacionamiento=est, fecha_termino__isnull=True).last()
             if mov:
-                mov["fechaTermino"] = datetime.now()
+                mov.fecha_termino = est.fecha_termino
+                mov.save()
 
     return redirect("home")
 
 
-
 # ===========================
-# ESTACIONAMIENTOS (admin)
+# ESTACIONAMIENTOS (CRUD)
 # ===========================
 def listarEstacionamiento(request):
-    return render(request, "estacionamiento/estacionamientoListar.html", {"estacionamientos": estacionamientos})
+    qs = Estacionamiento.objects.all().order_by("id")
+    return render(request, "estacionamiento/estacionamientoListar.html", {"estacionamientos": qs})
 
 
 def crearEstacionamiento(request):
     if request.method == "POST":
-        nuevo = {
-            "id": len(estacionamientos) + 1,
-            "estado": request.POST.get("estado", "Disponible"),
-            "tipo": request.POST.get("tipo", "Normal"),
-        }
-        estacionamientos.append(nuevo)
-        return redirect("listarEstacionamiento")
-    return render(request, "estacionamiento/estacionamientoCrear.html")
+        form = EstacionamientoForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect("listarEstacionamiento")
+    else:
+        form = EstacionamientoForm()
+    return render(request, "estacionamiento/estacionamientoCrear.html", {"form": form})
 
 
 def crearEstacionamientosMasivo(request):
     if request.method == "POST":
-        cantidad = int(request.POST.get("cantidad", 1))
-        tipo = request.POST.get("tipo", "Normal")
-        for _ in range(cantidad):
-            nuevo = {
-                "id": len(estacionamientos) + 1,
-                "estado": "Disponible",
-                "tipo": tipo,
-                "patente": None,
-                "fechaInicio": None,
-                "fechaTermino": None,
-            }
-            estacionamientos.append(nuevo)
-        return redirect("listarEstacionamiento")
-    return render(request, "estacionamiento/estacionamientoCrearMasivo.html")
+        form = EstacionamientosMasivoForm(request.POST)
+        if form.is_valid():
+            cantidad = form.cleaned_data["cantidad"]
+            tipo = form.cleaned_data["tipo"]
+            objs = [Estacionamiento(estado="D", tipo=tipo) for _ in range(cantidad)]
+            Estacionamiento.objects.bulk_create(objs)
+            return redirect("listarEstacionamiento")
+    else:
+        form = EstacionamientosMasivoForm()
+    return render(request, "estacionamiento/estacionamientoCrearMasivo.html", {"form": form})
 
 
 def editarEstacionamiento(request, id):
-    estacionamiento = next((e for e in estacionamientos if e["id"] == id), None)
-    if request.method == "POST" and estacionamiento:
-        estacionamiento["estado"] = request.POST.get("estado", estacionamiento["estado"])
-        estacionamiento["tipo"] = request.POST.get("tipo", estacionamiento["tipo"])
-        return redirect("listarEstacionamiento")
-    return render(request, "estacionamiento/estacionamientoEditar.html", {"id": id, "estacionamiento": estacionamiento})
-
-
-def eliminarEstacionamiento(request, id):
-    global estacionamientos
+    est = get_object_or_404(Estacionamiento, pk=id)
     if request.method == "POST":
-        estacionamientos = [e for e in estacionamientos if e["id"] != id]
-        return redirect("listarEstacionamiento")
-    return render(request, "estacionamiento/estacionamientoEliminar.html", {"id": id})
+        form = EstacionamientoForm(request.POST, instance=est)
+        if form.is_valid():
+            form.save()
+            return redirect("listarEstacionamiento")
+    else:
+        form = EstacionamientoForm(instance=est)
+    return render(request, "estacionamiento/estacionamientoEditar.html", {"form": form, "id": id})
 
 
 def eliminarTodosEstacionamientos(request):
-    global estacionamientos, reservas
     if request.method == "POST":
-        estacionamientos = []
-        reservas = []
+        Reserva.objects.all().delete()
+        Estacionamiento.objects.all().delete()
+        Historial.objects.all().delete()  
         return redirect("listarEstacionamiento")
     return render(request, "estacionamiento/estacionamientoEliminarTodos.html")
+
+
+def eliminarEstacionamiento(request, id):
+    est = get_object_or_404(Estacionamiento, pk=id)
+    if request.method == "POST":
+        est.delete()
+        return redirect("listarEstacionamiento")
+    return render(request, "estacionamiento/estacionamientoEliminar.html", {"id": id})
 
 
 # ===========================
@@ -153,16 +146,16 @@ def eliminarTodosEstacionamientos(request):
 # ===========================
 def listarReserva(request):
     data = []
-    ahora = datetime.now()
+    ahora = timezone.now()
 
-    for r in reservas:
-        # duración total de la reserva
-        duracion = (r["fechaTermino"] - r["fechaInicio"]).total_seconds() / 3600 if r["fechaTermino"] else 0
+    for r in Reserva.objects.select_related("estacionamiento").order_by("-id"):
+        duracion = 0
+        if r.fecha_inicio and r.fecha_termino:
+            duracion = (r.fecha_termino - r.fecha_inicio).total_seconds() / 3600
         duracion_str = f"{int(duracion)} horas" if duracion else "-"
 
-        # calcular tiempo restante
-        if r["fechaTermino"] and r["fechaTermino"] > ahora:
-            diff = r["fechaTermino"] - ahora
+        if r.fecha_termino and r.fecha_termino > ahora:
+            diff = r.fecha_termino - ahora
             horas = diff.seconds // 3600
             minutos = (diff.seconds % 3600) // 60
             tiempo_restante = f"{horas}h {minutos}m"
@@ -170,11 +163,11 @@ def listarReserva(request):
             tiempo_restante = "Finalizada"
 
         data.append({
-            "id": r["id"],
-            "patente": r["patente"],
-            "estacionamiento_id": r["estacionamiento_id"],
-            "fechaInicio": r["fechaInicio"].strftime("%Y-%m-%d %H:%M"),
-            "fechaTermino": r["fechaTermino"].strftime("%Y-%m-%d %H:%M") if r["fechaTermino"] else "-",
+            "id": r.id,
+            "patente": r.patente,
+            "estacionamiento_id": r.estacionamiento_id,
+            "fechaInicio": r.fecha_inicio.strftime("%Y-%m-%d %H:%M"),
+            "fechaTermino": r.fecha_termino.strftime("%Y-%m-%d %H:%M") if r.fecha_termino else "-",
             "duracion": duracion_str,
             "tiempoRestante": tiempo_restante
         })
@@ -182,46 +175,81 @@ def listarReserva(request):
     return render(request, "reserva/reservaListar.html", {"reservas": data})
 
 
-
 def crearReserva(request):
     if request.method == "POST":
-        patente = request.POST.get("patente")
-        fecha_inicio = datetime.strptime(request.POST.get("fechaInicio"), "%Y-%m-%dT%H:%M")
-        duracion_horas = int(request.POST.get("duracion"))
-        fecha_termino = fecha_inicio + timedelta(hours=duracion_horas)
+        form = ReservaCrearForm(request.POST)
+        if form.is_valid():
+            patente = form.cleaned_data["patente"]
+            fecha_inicio = form.cleaned_data["fecha_inicio"]
+            duracion_horas = form.cleaned_data["duracion"]
+            fecha_termino = fecha_inicio + timedelta(hours=duracion_horas)
 
-        estId = int(request.POST.get("estacionamiento_id"))
-        estacionamiento = next((e for e in estacionamientos if e["id"] == estId), None)
+            est_id = form.cleaned_data["estacionamiento_id"]
+            est = Estacionamiento.objects.filter(pk=est_id).first()
 
-        if estacionamiento and estacionamiento["estado"] == "Disponible":
-            reserva = {
-                "id": len(reservas) + 1,
-                "estacionamiento_id": estId,
-                "patente": patente,
-                "fechaInicio": fecha_inicio,
-                "fechaTermino": fecha_termino,
-                "tipo": estacionamiento["tipo"],
-                "reserva": True
-            }
-            reservas.append(reserva)
-            historial.append(reserva.copy())
 
-            estacionamiento["estado"] = "Ocupado"
-            estacionamiento["patente"] = patente
+            reserva_activa = Reserva.objects.filter(
+                fecha_termino__isnull=True
+            ) | Reserva.objects.filter(
+                fecha_termino__gt=timezone.now()
+            )
 
-        return redirect("listarReserva")
+            if reserva_activa.exists():
+                return render(request, "reserva/crearReserva.html", {
+                    "form": form,
+                    "estacionamientos": Estacionamiento.objects.filter(estado="D"),
+                    "error": "Ya existe una reserva activa o programada. Debe finalizar antes de crear otra."
+                })
 
-    return render(request, "reserva/crearReserva.html", {"estacionamientos": estacionamientos})
+            if est and est.estado == "D":
+                Reserva.objects.create(
+                    estacionamiento=est,
+                    patente=patente,
+                    fecha_inicio=fecha_inicio,
+                    fecha_termino=fecha_termino,
+                    tipo_snapshot=est.tipo,
+                )
+                est.estado = "O"
+                est.patente = patente
+                est.fecha_inicio = fecha_inicio
+                est.fecha_termino = fecha_termino
+                est.save()
+
+                Historial.objects.create(
+                    estacionamiento=est,
+                    patente=patente,
+                    fecha_inicio=fecha_inicio,
+                    fecha_termino=fecha_termino,
+                    es_reserva=True
+                )
+
+            return redirect("listarReserva")
+    else:
+        form = ReservaCrearForm()
+
+    est_disponibles = Estacionamiento.objects.filter(estado="D").order_by("id")
+    return render(request, "reserva/crearReserva.html", {
+        "form": form,
+        "estacionamientos": est_disponibles
+    })
+
 
 
 def terminarReserva(request, id):
-    reserva = next((r for r in reservas if r["id"] == id), None)
-    if reserva:
-        estacionamiento = next((e for e in estacionamientos if e["id"] == reserva["estacionamiento_id"]), None)
-        if estacionamiento:
-            estacionamiento["estado"] = "Disponible"
-            estacionamiento["patente"] = None
-        reserva["fechaTermino"] = datetime.now()
+    r = get_object_or_404(Reserva, pk=id)
+    est = r.estacionamiento
+    est.estado = "D"
+    est.patente = None
+    est.fecha_termino = timezone.now()
+    est.save()
+    r.fecha_termino = timezone.now()
+    r.save()
+
+    mov = Historial.objects.filter(estacionamiento=est, fecha_termino__isnull=True).last()
+    if mov:
+        mov.fecha_termino = est.fecha_termino
+        mov.save()
+
     return redirect("listarReserva")
 
 
@@ -229,9 +257,9 @@ def terminarReserva(request, id):
 # HISTORIAL
 # ===========================
 def listarHistorial(request):
-    total_reservas = sum(1 for r in historial if r.get("reserva"))
+    historial = Historial.objects.all().order_by("estacionamiento_id", "-fecha_inicio")
+    total_reservas = historial.filter(es_reserva=True).count()
     return render(request, "historial/historialListar.html", {
-        "reservas": historial,
+        "historial": historial,
         "total_reservas": total_reservas
     })
-
