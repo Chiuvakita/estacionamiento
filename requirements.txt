@@ -1,0 +1,2 @@
+#python -m pip freeze > requirements.txt ///En el entorno virtual
+#python -m pip install -r requirements.txt ///Para instalar en otra maquina
