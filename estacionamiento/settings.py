@@ -58,7 +58,11 @@ ROOT_URLCONF = 'estacionamiento.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')],
+        'DIRS': [
+            os.path.join(BASE_DIR, 'templates'),
+            os.path.join(BASE_DIR, 'templates', 'apps', 'usuarios'),],
+
+        # como tenemos dos rutas primero busca en templates base para rederizar el home que esta fuera y despues en el otro template de apps
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
