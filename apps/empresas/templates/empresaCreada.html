@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Empresa Creada</title>
+</head>
+<body>
+    <h2>Empresa Creada</h2>
+    <p>Nombre: {{ empresa.nombre }}</p>
+    <p>Teléfono: {{ empresa.telefono }}</p>
+    <p>Correo: {{ empresa.correo }}</p>
+    <p>Dirección: {{ empresa.direccion }}</p>
+    <a href="{% url 'crearEmpresa' %}">Crear otra empresa</a><br></br>
+    <a href="{% url 'empresas_listar' %}">Volver a listar empresas</a>
+</body>
+</html>
