@@ -1,23 +1,24 @@
-<form method="post" action="{{ action_url }}">
+<form id="usuarioForm" method="post" action="{{ action_url }}">
     {% csrf_token %}
     <label>RUT:</label>
-    <input type="number" name="rut" value="{{ usuario.rut|default_if_none:'' }}" {% if rutReadonly %}readonly{% endif %} required><br>
+    <input type="number" name="rut" id="rut" value="{{ usuario.rut|default_if_none:'' }}" {% if rutReadonly %}readonly{% endif %} required min="1" max="999999999"><br>
     <label>Nombre:</label>
-    <input type="text" name="nombre" value="{{ usuario.nombre|default_if_none:'' }}" required><br>
+    <input type="text" name="nombre" id="nombre" value="{{ usuario.nombre|default_if_none:'' }}" required minlength="2" maxlength="50" pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+" title="Solo se permiten letras y espacios"><br>
     <label>Apellido Paterno:</label>
-    <input type="text" name="apellidoPaterno" value="{{ usuario.apellidoPaterno|default_if_none:'' }}" required><br>
+    <input type="text" name="apellidoPaterno" id="apellidoPaterno" value="{{ usuario.apellidoPaterno|default_if_none:'' }}" required minlength="2" maxlength="50" pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ]+" title="Solo se permiten letras"><br>
     <label>Apellido Materno:</label>
-    <input type="text" name="apellidoMaterno" value="{{ usuario.apellidoMaterno|default_if_none:'' }}" required><br>
+    <input type="text" name="apellidoMaterno" id="apellidoMaterno" value="{{ usuario.apellidoMaterno|default_if_none:'' }}" required minlength="2" maxlength="50" pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ]+" title="Solo se permiten letras"><br>
     <label>Número:</label>
-    <input type="text" name="numeroTelefono" value="{{ usuario.numeroTelefono|default_if_none:'' }}" required><br>
+    <input type="tel" name="numeroTelefono" id="numeroTelefono" value="{{ usuario.numeroTelefono|default_if_none:'' }}" required pattern="[0-9]{8,12}" title="Ingrese un número de teléfono válido (8-12 dígitos)" placeholder="Ej: 987654321"><br>
     <label>Rol:</label>
-    <select name="rol" required>
+    <select name="rol" id="rol" required>
+      <option value="">Seleccione un rol</option>
       <option value="Administrador" {% if usuario.rol == "Administrador" %}selected{% endif %}>Administrador</option>
       <option value="Empleado" {% if usuario.rol == "Empleado" %}selected{% endif %}>Empleado</option>
     </select>
     <div class="checkbox-container">
-      <input type="checkbox" name="discapacidad" value="true" {% if usuario.discapacidad %}checked{% endif %}>
-      <label>Discapacidad</label>
+      <input type="checkbox" name="discapacidad" id="discapacidad" value="true" {% if usuario.discapacidad %}checked{% endif %}>
+      <label for="discapacidad">Discapacidad</label>
     </div>
     <button type="submit">{{ botonTexto }}</button>
 </form>

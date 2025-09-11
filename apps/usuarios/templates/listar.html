@@ -34,7 +34,7 @@
                         <td>{% if usuario.discapacidad %}Sí{% else %}No{% endif %}</td> 
                         <td>
                             <a href="{% url 'editarUsuario' usuario.rut %}">Editar</a>
-                            <a href="/usuarios/eliminar/{{ usuario.rut }}">Eliminar</a>
+                            <a href="/usuarios/eliminar/{{ usuario.rut }}" class="eliminar">Eliminar</a>
                         </td>
                     </tr>
                     {% endfor %}
@@ -43,5 +43,6 @@
             <a href="/usuarios/crear/" id="crear-usuario">Crear</a>
         </section>
     </main>
+    <script src="{% static 'js/validacionUsuario.js' %}"></script>
 </body>
 </html>
