@@ -1,2 +1,42 @@
-<h1>Empresas</h1>
-<a href="{% url 'home' %}">🏠 Home</a>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Listado de Empresas</title>
+</head>
+<body>
+    <a href="{% url 'crearEmpresa' %}">Crear nueva empresa</a>
+    <h1>Listado de Empresas</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Teléfono</th>
+                <th>Correo</th>
+                <th>Dirección</th>
+                <th>Acción</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for empresa in empresas %}
+            <tr>
+                <td>{{ empresa.nombre }}</td>
+                <td>{{ empresa.telefono }}</td>
+                <td>{{ empresa.correo }}</td>
+                <td>{{ empresa.direccion }}</td>
+                <td>
+                    <a href="{% url 'editarEmpresa' empresa.id %}">Editar</a>
+                    <br>
+                    <form action="{% url 'eliminarEmpresa' empresa.id %}" method="POST">
+                        {% csrf_token %}
+                        <button type="submit" onclick="return confirm('¿Está seguro de que desea eliminar esta empresa?');">
+                            Eliminar
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
