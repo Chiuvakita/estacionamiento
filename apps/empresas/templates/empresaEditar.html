@@ -1,8 +1,10 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <title>Editar Empresa</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
     <h1>Editar Empresa</h1>
@@ -20,8 +22,8 @@
         <label for="direccion">Dirección:</label>
         <input type="text" id="direccion" name="direccion" value="{{ empresa.direccion }}"><br>
 
-        <button type="submit">Guardar cambios</button>
-        <a href="{% url 'empresas_listar' %}">Volver a listar empresas</a>
+        <button class="button button-success" type="submit">Guardar cambios</button>
+        <a class="button" href="{% url 'empresas_listar' %}">Volver a listar empresas</a>
     </form>
 </body>
 </html>

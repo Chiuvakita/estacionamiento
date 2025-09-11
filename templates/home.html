@@ -4,18 +4,23 @@
 <head>
   <meta charset="UTF-8">
   <title>Home</title>
-  <link rel="stylesheet" href="{% static 'css/home.css' %}">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
 </head>
 <body>
-  <h1>Bienvenido al Sistema de Estacionamientos</h1>
-  <nav>
-    <ul>
-      <li><a href="{% url 'usuarios_listar' %}">Usuarios</a></li>
-      <li><a href="{% url 'empresas_listar' %}">Empresas</a></li>
-      <li><a href="{% url 'vehiculos_listar' %}">Vehículos</a></li>
-      <li><a href="{% url 'listarEstacionamiento' %}">Estacionamientos</a></li>
-    </ul>
 
-  </nav>
+
+  <main>
+    <h1>Bienvenido al Sistema de Estacionamientos</h1>
+
+    <div class="card">
+      <div class="actions">
+        <a class="button" href="{% url 'usuarios_listar' %}">Ir a Usuarios</a>
+        <a class="button" href="{% url 'empresas_listar' %}">Ir a Empresas</a>
+        <a class="button" href="{% url 'vehiculos_listar' %}">Ir a Vehículos</a>
+        <a class="button" href="{% url 'listarEstacionamiento' %}">Ir a Estacionamientos</a>
+      </div>
+    </div>
+  </main>
 </body>
 </html>

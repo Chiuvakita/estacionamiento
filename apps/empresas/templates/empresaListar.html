@@ -1,12 +1,19 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <title>Listado de Empresas</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
-    <a href="{% url 'crearEmpresa' %}">Crear nueva empresa</a>
+    <div class="actions" style="margin: 10px 0;">
+        <a class="button" href="{% url 'home' %}">Inicio</a>
+        <a class="button" href="{% url 'crearEmpresa' %}">Crear nueva empresa</a>
+    </div>
+
     <h1>Listado de Empresas</h1>
+
     <table>
         <thead>
             <tr>
@@ -25,11 +32,12 @@
                 <td>{{ empresa.correo }}</td>
                 <td>{{ empresa.direccion }}</td>
                 <td>
-                    <a href="{% url 'editarEmpresa' empresa.id %}">Editar</a>
+                    <a class="button" href="{% url 'editarEmpresa' empresa.id %}">Editar</a>
                     <br>
-                    <form action="{% url 'eliminarEmpresa' empresa.id %}" method="POST">
+                    <form action="{% url 'eliminarEmpresa' empresa.id %}" method="POST" style="display:inline;">
                         {% csrf_token %}
-                        <button type="submit" onclick="return confirm('¿Está seguro de que desea eliminar esta empresa?');">
+                        <button class="button button-danger" type="submit"
+                                onclick="return confirm('¿Está seguro de que desea eliminar esta empresa?');">
                             Eliminar
                         </button>
                     </form>

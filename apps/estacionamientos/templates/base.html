@@ -7,16 +7,26 @@
   <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
+  {% with url_name=request.resolver_match.url_name %}
   <nav class="navbar">
-    <a href="{% url 'home' %}">Inicio</a>
-    <a href="{% url 'listarEstacionamiento' %}">Estacionamientos</a>
-    <a href="{% url 'listarReserva' %}">Reservas</a>
-    <a href="{% url 'listarHistorial' %}">Historial</a>
+    <a class="{% if url_name == 'home' %}active{% endif %}" href="{% url 'home' %}">Inicio</a>
+
+    <a class="{% if url_name in 'empresas_listar crearEmpresa editarEmpresa' %}active{% endif %}"
+       href="{% url 'empresas_listar' %}">Empresas</a>
+
+    <a class="{% if url_name in 'listarEstacionamiento crearEstacionamiento editarEstacionamiento' %}active{% endif %}"
+       href="{% url 'listarEstacionamiento' %}">Estacionamientos</a>
+
+    <a class="{% if url_name in 'listarReserva crearReserva terminarReserva' %}active{% endif %}"
+       href="{% url 'listarReserva' %}">Reservas</a>
+
+    <a class="{% if url_name == 'listarHistorial' %}active{% endif %}"
+       href="{% url 'listarHistorial' %}">Historial</a>
   </nav>
+  {% endwith %}
 
   <main>
-    {% block content %}
-    {% endblock %}
+    {% block content %}{% endblock %}
   </main>
 </body>
 </html>

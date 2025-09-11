@@ -1,10 +1,13 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <title>Crear Empresa</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
+    <h1>Crear Empresa</h1>
     <form action="{% url 'crearEmpresa' %}" method="post">
         {% csrf_token %}
         <label for="nombre">Nombre:</label>
@@ -19,7 +22,8 @@
         <label for="direccion">Dirección:</label>
         <input type="text" id="direccion" name="direccion" required><br>
 
-        <button type="submit">Crear Empresa</button>
+        <button class="button button-success" type="submit">Crear Empresa</button>
+        <a class="button" href="{% url 'empresas_listar' %}">Volver</a>
     </form>
 </body>
 </html>
