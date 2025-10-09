@@ -1,0 +1,226 @@
+.btn-cancelar{
+    background: linear-gradient(135deg, #f56565 0%, #c53030 100%) !important;
+    color: #fff !important;
+    box-shadow: 0 4px 15px rgba(245, 101, 101, 0.25) !important;
+    border: none !important;
+    border-radius: 12px !important;
+    padding: 14px 28px !important;
+    font-weight: 600;
+    min-width: 120px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    outline: none;
+    text-decoration: none !important;
+}
+.btn-cancelar:hover {
+    background: linear-gradient(135deg, #c53030 0%, #9b2c2c 100%) !important;
+    color: #fff !important;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(245, 101, 101, 0.35) !important;
+    text-decoration: none !important;
+}
+
+.btn-secondary {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.15);
+    border: none;
+    border-radius: 12px;
+    padding: 14px 28px;
+    font-weight: 600;
+    min-width: 120px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    outline: none;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.btn-secondary:hover {
+    background: linear-gradient(135deg, #0056b3 0%, #003974 100%);
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 123, 255, 0.25);
+    text-decoration: none;
+}
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: white;
+    min-height: 100vh;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+h1 {
+    .btn, .btn:visited, .btn:active, .btn:focus {
+        padding: 14px 28px;
+        border: none;
+        border-radius: 12px;
+        text-decoration: none !important;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        display: inline-block;
+        text-align: center;
+        min-width: 120px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        outline: none;
+    }
+    .btn:focus {
+        box-shadow: 0 0 0 3px rgba(102,126,234,0.2);
+    }
+    width: 100%;
+    max-width: 400px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    color: #555;
+    font-weight: bold;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="tel"],
+select {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+    box-sizing: border-box;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: textfield;
+}
+
+/* Quitar flechas del input number en WebKit */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+input[type="tel"]:focus,
+select:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+}
+
+input[type="checkbox"] {
+    margin-right: 8px;
+    transform: scale(1.2);
+}
+
+
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+/* Estilos específicos para Django Forms */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    color: #555;
+    font-weight: bold;
+}
+
+.form-control {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+.form-control:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+}
+
+.readonly-field {
+    background-color: #f8f9fa !important;
+    color: #6c757d !important;
+    cursor: not-allowed;
+}
+
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.checkbox-group .form-check-input {
+    width: auto;
+    margin: 0;
+}
+
+.field-errors .error {
+    color: #dc3545;
+    font-size: 14px;
+    display: block;
+    margin-top: 5px;
+}
+
+.form-help p {
+    color: #6c757d0f;
+    font-size: 12px;
+    display: block;
+    margin-top: 5px;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin:0;
+    gap: 10px;
+
+    margin-top: 20px;
+}
+
+
+.messages {
+    margin-bottom: 20px;
+}
+
+.alert {
+    padding: 10px 15px;
+    margin-bottom: 10px;
+    border: 1px solid transparent;
+    border-radius: 5px;
+}
+
+.alert-success {
+    color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+}
+
+.alert-error {
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+}

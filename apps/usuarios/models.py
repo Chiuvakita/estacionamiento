@@ -1,5 +1,6 @@
 from django.db import models
 
+
 class Usuario(models.Model):
     rut = models.IntegerField(unique=True, primary_key=True)
     nombre = models.CharField(max_length=45)
