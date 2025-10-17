@@ -17,7 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.shortcuts import render
-
+from apps.usuarios import views
 
 def home(request):
     return render(request, "home.html")
@@ -25,10 +25,15 @@ def home(request):
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("", home, name="home"),
+    
+    path("login/", views.loginView, name="login"), 
+    path("logout/", views.logoutView, name="logout"),
+
     path("usuarios/", include("apps.usuarios.urls")),
     path("empresas/", include("apps.empresas.urls")),
     path("vehiculos/", include("apps.vehiculos.urls")),
     path("estacionamientos/", include("apps.estacionamientos.urls")),
+
 ]
 
 
