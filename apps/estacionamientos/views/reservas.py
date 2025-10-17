@@ -9,7 +9,7 @@ def listarReserva(request):
     data = []
     ahora = timezone.now()
 
-    for r in Reserva.objects.select_related("estacionamiento").order_by("-id"):
+    for r in Reserva.objects.order_by("-id"):
         duracion = 0
         if r.fecha_inicio and r.fecha_termino:
             duracion = (r.fecha_termino - r.fecha_inicio).total_seconds() / 3600
@@ -45,7 +45,7 @@ def crearReserva(request):
             fecha_termino = fecha_inicio + timedelta(hours=duracion_horas)
 
             est_id = form.cleaned_data["estacionamiento_id"]
-            est = Estacionamiento.objects.filter(pk=est_id).first()
+            est = Estacionamiento.objects.filter(pk=est_id).first()  # ✅ Correcto
 
             if existe_reserva_activa_o_programada():
                 return render(request, "reserva/crearReserva.html", {
@@ -56,11 +56,10 @@ def crearReserva(request):
 
             if est and est.estado == "D":
                 Reserva.objects.create(
-                    estacionamiento=est,
+                    estacionamiento_id=est.id,  
                     patente=patente,
                     fecha_inicio=fecha_inicio,
-                    fecha_termino=fecha_termino,
-                    tipo_snapshot=est.tipo,
+                    fecha_termino=fecha_termino
                 )
                 ocupar_estacionamiento(est, patente, fecha_inicio, fecha_termino, es_reserva=True)
 
@@ -76,7 +75,13 @@ def crearReserva(request):
 
 def terminarReserva(request, id):
     r = get_object_or_404(Reserva, pk=id)
-    liberar_estacionamiento(r.estacionamiento)
+
+    est = Estacionamiento.objects.filter(id=r.estacionamiento_id).first()
+
+    if est:
+        liberar_estacionamiento(est)
+
     r.fecha_termino = timezone.now()
     r.save()
+
     return redirect("listarReserva")

@@ -14,7 +14,7 @@ def ocupar_estacionamiento(est: Estacionamiento, patente: str, fecha_inicio=None
     est.save()
 
     Historial.objects.create(
-        estacionamiento=est,
+        estacionamiento_id=est.id,
         patente=patente,
         fecha_inicio=fecha_inicio,
         fecha_termino=fecha_termino,
@@ -31,7 +31,12 @@ def liberar_estacionamiento(est: Estacionamiento, fecha_termino=None):
     cerrar_historial_para(est, fecha_termino)
 
 def cerrar_historial_para(est: Estacionamiento, fecha_termino):
-    mov = Historial.objects.filter(estacionamiento=est, fecha_termino__isnull=True).last()
+    mov = (
+        Historial.objects
+        .filter(estacionamiento_id=est.id, fecha_termino__isnull=True)
+        .order_by("-fecha_inicio")
+        .first()
+    )
     if mov:
         mov.fecha_termino = fecha_termino
         mov.save()
@@ -39,5 +44,8 @@ def cerrar_historial_para(est: Estacionamiento, fecha_termino):
 def existe_reserva_activa_o_programada(now=None):
     if now is None:
         now = timezone.now()
-    return Reserva.objects.filter(fecha_termino__isnull=True).exists() or \
-           Reserva.objects.filter(fecha_termino__gt=now).exists()
+
+    return (
+        Reserva.objects.filter(fecha_termino__isnull=True).exists()
+        or Reserva.objects.filter(fecha_termino__gt=now).exists()
+    )

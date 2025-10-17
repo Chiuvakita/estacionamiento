@@ -8,7 +8,11 @@
 <div class="card">
   <a href="{% url 'crearEstacionamiento' %}" class="button">Crear</a>
   <a href="{% url 'crearEstacionamientosMasivo' %}" class="button">Crear masivo</a>
-  <a href="{% url 'eliminarTodosEstacionamientos' %}" class="button button-danger">Eliminar todos</a>
+
+  <form method="post" action="{% url 'eliminarTodosEstacionamientos' %}" style="display:inline;">
+    {% csrf_token %}
+    <button type="submit" class="button button-danger">Eliminar todos</button>
+  </form>
 </div>
 
 <table>
@@ -21,13 +25,26 @@
     <td>{{ e.patente|default:"-" }}</td>
     <td>
       <a href="{% url 'editarEstacionamiento' e.id %}" class="button">Editar</a>
-      <a href="{% url 'eliminarEstacionamiento' e.id %}" class="button button-danger">Eliminar</a>
+
+      <form method="post" action="{% url 'eliminarEstacionamiento' e.id %}" style="display:inline;">
+        {% csrf_token %}
+        <button 
+          type="submit" 
+          class="button button-danger" 
+          data-espacio-id="{{ e.id }}">
+          Eliminar
+        </button>
+      </form>
     </td>
   </tr>
   {% endfor %}
 </table>
+
 <script src="{% static 'js/validaciones.js' %}"></script>
 <script>
-  document.querySelectorAll(".button-danger").forEach(btn => btn.addEventListener("click", confirmarAccion));
+  document.querySelectorAll(".button-danger").forEach(btn =>
+    btn.addEventListener("click", confirmarAccion)
+  );
 </script>
+
 {% endblock %}

@@ -3,7 +3,7 @@ from django.urls import path
 from .views.home import home, marcarSalida, marcarSalidaPatente
 from .views.estacionamientos import (
     listarEstacionamiento, crearEstacionamiento, crearEstacionamientosMasivo,
-    editarEstacionamiento, eliminarEstacionamiento, eliminarTodosEstacionamientos,
+    editarEstacionamiento, eliminarEstacionamiento, eliminarTodosEstacionamientos,  
 )
 from .views.reservas import listarReserva, crearReserva, terminarReserva
 from .views.historial import listarHistorial
@@ -20,6 +20,8 @@ urlpatterns = [
     path("estacionamientos/crear_masivo/", crearEstacionamientosMasivo, name="crearEstacionamientosMasivo"),
     path("estacionamientos/<int:id>/editar/", editarEstacionamiento, name="editarEstacionamiento"),
     path("estacionamientos/<int:id>/eliminar/", eliminarEstacionamiento, name="eliminarEstacionamiento"),
+
+    
     path("estacionamientos/eliminar_todos/", eliminarTodosEstacionamientos, name="eliminarTodosEstacionamientos"),
 
     # Reservas

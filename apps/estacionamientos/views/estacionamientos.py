@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.db import connection
 from ..models.estacionamiento import Estacionamiento
 from ..models.reserva import Reserva
 from ..models.historial import Historial
@@ -45,14 +46,24 @@ def editarEstacionamiento(request, id):
 def eliminarTodosEstacionamientos(request):
     if request.method == "POST":
         Reserva.objects.all().delete()
-        Estacionamiento.objects.all().delete()
         Historial.objects.all().delete()
+        Estacionamiento.objects.all().delete()
+
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                DELETE FROM sqlite_sequence 
+                WHERE name IN ('estacionamientos_estacionamiento', 'estacionamientos_reserva', 'estacionamientos_historial');
+            """)
+
         return redirect("listarEstacionamiento")
-    return render(request, "estacionamiento/estacionamientoEliminarTodos.html")
+
+    return redirect("listarEstacionamiento")
 
 def eliminarEstacionamiento(request, id):
     est = get_object_or_404(Estacionamiento, pk=id)
     if request.method == "POST":
         est.delete()
+        with connection.cursor() as cursor:
+            cursor.execute("DELETE FROM sqlite_sequence WHERE name='estacionamientos_estacionamiento';")
         return redirect("listarEstacionamiento")
-    return render(request, "estacionamiento/estacionamientoEliminar.html", {"id": id})
+    return redirect("listarEstacionamiento")
