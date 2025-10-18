@@ -2,7 +2,7 @@ from django.db import models
 from django.utils import timezone
 
 class Reserva(models.Model):
-    estacionamiento = models.ForeignKey("estacionamientos.Estacionamiento", on_delete=models.CASCADE)
+    estacionamiento_id = models.IntegerField()  
     patente = models.CharField(max_length=20, default="DESCONOCIDA")
     fecha_inicio = models.DateTimeField(default=timezone.now)
     fecha_termino = models.DateTimeField(null=True, blank=True)

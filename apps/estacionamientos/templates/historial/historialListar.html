@@ -2,42 +2,47 @@
 {% block title %}Historial{% endblock %}
 
 {% block content %}
-<h1>Historial de Movimientos</h1>
-
+<h1 class="text-center mb-4">Historial de Movimientos</h1>
 <p><strong>Total de reservas registradas:</strong> {{ total_reservas }}</p>
 
-{% regroup historial by estacionamiento as historial_por_espacio %}
+{% regroup historial by estacionamiento_id as historial_por_espacio %}
 
 {% for grupo in historial_por_espacio %}
-  <div class="card">
-    <h2>Espacio #{{ grupo.grouper.id }} ({{ grupo.grouper.get_tipo_display }})</h2>
-    <table>
-      <tr>
-        <th>Patente</th>
-        <th>Inicio</th>
-        <th>Término</th>
-        <th>Reserva</th>
-      </tr>
-      {% for r in grupo.list %}
-      <tr>
-        <td>{{ r.patente }}</td>
-        <td>{{ r.fecha_inicio|date:"Y-m-d H:i" }}</td>
-        <td>
-          {% if r.fecha_termino %}
-            {{ r.fecha_termino|date:"Y-m-d H:i" }}
-          {% else %}
-            En uso
-          {% endif %}
-        </td>
-        <td>{% if r.es_reserva %}Sí{% else %}No{% endif %}</td>
-      </tr>
-      {% empty %}
-      <tr><td colspan="4">Sin movimientos registrados</td></tr>
-      {% endfor %}
+  <div class="card mb-4 bg-dark text-light p-3 rounded-3 shadow-sm">
+    <h2 class="fs-4 mb-3">Espacio #{{ grupo.grouper }}</h2>
+
+    <table class="table table-dark table-striped align-middle">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Patente</th>
+          <th>Inicio</th>
+          <th>Término</th>
+          <th>Reserva</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in grupo.list %}
+        <tr>
+          <td>{{ forloop.counter }}</td>
+          <td>{{ r.patente }}</td>
+          <td>{{ r.fecha_inicio|date:"Y-m-d H:i" }}</td>
+          <td>
+            {% if r.fecha_termino %}
+              {{ r.fecha_termino|date:"Y-m-d H:i" }}
+            {% else %}
+              <span class="text-warning">En uso</span>
+            {% endif %}
+          </td>
+          <td>{% if r.es_reserva %}SI{% else %}NOO{% endif %}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5" class="text-center text-muted">Sin movimientos</td></tr>
+        {% endfor %}
+      </tbody>
     </table>
   </div>
 {% empty %}
-  <p>No hay registros en el historial.</p>
+  <p class="text-center text-muted">No hay registros en el historial.</p>
 {% endfor %}
-
 {% endblock %}

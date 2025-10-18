@@ -120,12 +120,23 @@ function validarEstacionamiento(e) {
 // ===============================
 
 function confirmarAccion(e) {
-  if (!confirm("¿Estás seguro de realizar esta acción?")) {
-    e.preventDefault();
-    return false;
+  e.preventDefault(); 
+  const form = e.target.closest("form");
+
+  const espacioId = e.target.dataset.espacioId;
+
+  let mensaje = "";
+  if (espacioId) {
+    mensaje = `¿Seguro que deseas eliminar el espacio #${espacioId}?`;
+  } else {
+    mensaje = "¿Seguro que deseas eliminar TODOS los estacionamientos?";
   }
-  return true;
+
+  if (confirm(mensaje)) {
+    form.submit(); 
+  }
 }
+
 
 // ===============================
 // TOGGLE SELECT 
