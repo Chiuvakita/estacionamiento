@@ -1,0 +1,60 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Listado de Vehículos</title>
+  <link rel="stylesheet" href="{% static 'css/vehiculos.css' %}">
+</head>
+<body>
+  <main>
+    <h1>Listado de Vehículos</h1>
+
+    <section class="card" style="display:flex; gap:10px; flex-wrap:wrap;">
+      <a href="{% url 'listarReserva' %}" class="button">Volver</a>
+      <a href="{% url 'crearVehiculo' %}" class="button">Crear</a>
+      <a href="{% url 'eliminarTodosVehiculos' %}" class="button button-danger"
+         onclick="return confirm('¿Seguro que deseas eliminar todos los vehículos?')">
+         Eliminar todos
+      </a>
+    </section>
+
+    <section class="card">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Patente</th>
+            <th>Marca</th>
+            <th>Modelo</th>
+            <th>Tipo</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for v in vehiculos %}
+          <tr>
+            <td>{{ v.id }}</td>
+            <td>{{ v.patente }}</td>
+            <td>{{ v.marca }}</td>
+            <td>{{ v.modelo }}</td>
+            <td>{{ v.tipo }}</td>
+            <td>
+              <a href="{% url 'editarVehiculo' v.id %}" class="button">Editar</a>
+              <a href="{% url 'eliminarVehiculo' v.id %}" class="button button-danger"
+                 onclick="return confirm('¿Eliminar este vehículo?')">Eliminar</a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="6" style="text-align:center; color:var(--text-light);">
+              No hay vehículos registrados.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>
