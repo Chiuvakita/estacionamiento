@@ -5,9 +5,11 @@
 
 <h1>Listado de Reservas</h1>
 
-<div class="card">
+<div class="card" style="display:flex; gap:10px; flex-wrap:wrap;">
   <a href="{% url 'crearReserva' %}" class="button">Crear reserva</a>
+  <a href="{% url 'listarVehiculos' %}" class="button button-success">Gestionar autos</a>
 </div>
+
 
 <table>
   <tr>

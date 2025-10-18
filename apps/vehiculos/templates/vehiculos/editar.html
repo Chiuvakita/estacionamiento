@@ -1,0 +1,27 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Editar Vehículo</title>
+  <link rel="stylesheet" href="{% static 'css/vehiculos.css' %}">
+</head>
+<body>
+  <main>
+    <h1>Editar Vehículo</h1>
+
+    <section class="card">
+      <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+
+        <div style="display:flex; gap:10px; margin-top:15px;">
+          <button type="submit" class="button button-success">Guardar</button>
+          <a href="{% url 'listarVehiculos' %}" class="button button-danger">Cancelar</a>
+        </div>
+
+      </form>
+    </section>
+  </main>
+</body>
+</html>

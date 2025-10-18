@@ -1,12 +1,17 @@
 from django import forms
 from django.utils import timezone
-from ..models.reserva import Reserva  
+from ..models.reserva import Reserva
+from apps.vehiculos.models import Vehiculo
 
 class ReservaCrearForm(forms.Form):
-    patente = forms.CharField(max_length=10)
-    estacionamiento_id = forms.IntegerField()
+    vehiculo = forms.ModelChoiceField(
+        queryset=Vehiculo.objects.all(),
+        label="Vehículo",
+        empty_label="Selecciona un vehículo"
+    )
+    estacionamiento_id = forms.IntegerField(label="Estacionamiento")
     fecha_inicio = forms.DateTimeField(input_formats=["%Y-%m-%dT%H:%M"])
-    duracion = forms.IntegerField(min_value=1)
+    duracion = forms.IntegerField(min_value=1, label="Duración (horas)")
 
     def clean(self):
         data = super().clean()
