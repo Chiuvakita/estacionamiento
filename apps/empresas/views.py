@@ -1,5 +1,6 @@
 from django.shortcuts import redirect, render
 from django.http import HttpResponse
+from apps.empresas import forms
 from apps.empresas.models import Empresa,Sucursal
 from apps.utils.decoradores import loginRequerido, soloAdminEmpleado
 
@@ -7,8 +8,7 @@ from apps.utils.decoradores import loginRequerido, soloAdminEmpleado
 # Realizar crearEmpresa
 @loginRequerido
 @soloAdminEmpleado
-def gestionarEmpresa(request, empresa=None):
-    if request.method == "POST": #Si el metodo es POST
+def gestionarEmpresa(request, empresa_id=None):#funcion para crear y editar empresa
     
     if empresa_id:  # Si se proporciona un ID de empresa, estamos editando una empresa existente
         empresa = Empresa.objects.get(id=empresa_id)
