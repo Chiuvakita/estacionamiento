@@ -120,20 +120,30 @@ function validarEstacionamiento(e) {
 // ===============================
 
 function confirmarAccion(e) {
-  e.preventDefault(); 
+  e.preventDefault();
   const form = e.target.closest("form");
-
-  const espacioId = e.target.dataset.espacioId;
+  const btn = e.target;
+  const texto = btn.textContent.trim().toLowerCase();
+  const espacioId = btn.dataset.espacioId;
 
   let mensaje = "";
-  if (espacioId) {
+
+  if (texto.includes("terminar")) {
+    mensaje = "¿Seguro que deseas terminar esta reserva?";
+  } else if (texto.includes("eliminar todos")) {
+    mensaje = "¿Seguro que deseas eliminar TODOS los vehículos?";
+  } else if (texto.includes("eliminar") && espacioId) {
     mensaje = `¿Seguro que deseas eliminar el espacio #${espacioId}?`;
+  } else if (texto.includes("eliminar")) {
+    mensaje = "¿Seguro que deseas eliminar este vehículo?";
   } else {
-    mensaje = "¿Seguro que deseas eliminar TODOS los estacionamientos?";
+    mensaje = "¿Estás seguro de continuar con esta acción?";
   }
 
+  // Confirmar y continuar
   if (confirm(mensaje)) {
-    form.submit(); 
+    if (form) form.submit();
+    else window.location.href = btn.getAttribute("href");
   }
 }
 

@@ -1,0 +1,27 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Crear Vehículo</title>
+  <link rel="stylesheet" href="{% static 'css/vehiculos.css' %}">
+</head>
+<body>
+  <main>
+    <h1>Crear Vehículo</h1>
+
+    <section class="card">
+      {% if error %}
+        <p style="color:#ff5d6c; text-align:center;">{{ error }}</p>
+      {% endif %}
+
+      <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="button button-success">Guardar</button>
+        <a href="{% url 'listarVehiculos' %}" class="button button-danger">Cancelar</a>
+      </form>
+    </section>
+  </main>
+</body>
+</html>
