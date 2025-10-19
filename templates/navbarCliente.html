@@ -1,0 +1,17 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Sistema Estacionamiento</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+
+  <nav class="navbar">
+    <a class="{% if request.resolver_match.url_name in 'listarReserva crearReserva terminarReserva' %}active{% endif %}"
+      href="{% url 'listarReserva' %}">Reservas</a>
+    <a href="{% url 'logout' %}" style="margin-left: auto;">Cerrar Sesión ({{ request.user.nombreCompleto }})</a>
+  </nav>
+</body>
+</html>
