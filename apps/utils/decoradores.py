@@ -1,4 +1,6 @@
+
 from django.shortcuts import redirect
+
 from django.conf import settings
 from apps.usuarios.models import Usuario
 from django.contrib import messages
@@ -60,4 +62,28 @@ def soloAdminEmpleado(funcion_vista):
             return redirect('/estacionamientos/reservas')
         except Usuario.DoesNotExist:
             return redirect("/login/")   
+    return verificar
+
+def soloCliente(funcion_vista):
+    @wraps(funcion_vista)
+    def verificar(request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect(f"/login")
+        
+        try:
+            if request.user.username.isdigit():
+                rut = int(request.user.username)
+                usuario = Usuario.objects.get(rut=rut)
+                
+                if usuario.rol == 'Cliente':
+                    return funcion_vista(request, *args, **kwargs)
+                else:
+                    return redirect('/estacionamientos/')
+            else:
+                return redirect('/estacionamientos/')
+                
+        except ValueError:
+            return redirect('/estacionamientos/')
+        except Usuario.DoesNotExist:
+            return redirect("/login/")
     return verificar

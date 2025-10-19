@@ -11,7 +11,10 @@
   <nav class="navbar">
     <a class="{% if request.resolver_match.url_name in 'listarReserva crearReserva terminarReserva' %}active{% endif %}"
       href="{% url 'listarReserva' %}">Reservas</a>
+    <a class="{% if request.resolver_match.url_name in 'listarVehiculos crearVehiculo editarVehiculo' %}active{% endif %}"
+      href="{% url 'listarVehiculos' %}">Vehículos</a>
     <a href="{% url 'logout' %}" style="margin-left: auto;">Cerrar Sesión ({{ request.user.nombreCompleto }})</a>
+
   </nav>
 </body>
 </html>
