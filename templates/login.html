@@ -1,34 +1,53 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Iniciar sesión</title>
+  <link rel="stylesheet" href="{% static 'css/login.css' %}">
 </head>
 <body>
-  <h1>Iniciar sesión</h1>
+  <main>
+    <div class="card">
+      <h1>Iniciar Sesión</h1>
 
-  {% if messages %}
-    <div>
-      {% for message in messages %}<p>{{ message }}</p>{% endfor %}
+      {% if messages %}
+        <div class="messages">
+          {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <form method="POST" action="{% url 'login' %}" class="usuario-form">
+        {% csrf_token %}
+        
+        <div class="form-group">
+          <label for="username">RUT:</label>
+          <input id="username" name="username" type="number" class="form-control" placeholder="Ingrese su RUT sin puntos ni guión" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="clave">Contraseña:</label>
+          <input id="clave" name="clave" type="password" class="form-control" placeholder="Ingrese su contraseña" required>
+        </div>
+        
+        {% if request.GET.next %}
+          <input type="hidden" name="next" value="{{ request.GET.next }}">
+        {% endif %}
+        
+        <div class="form-actions">
+          <button type="submit" class="button">Ingresar</button>
+        </div>
+      </form>
+      
+      <div style="margin-top: 20px; text-align: center;">
+        <p>¿No tienes cuenta? <a href="{% url 'registro' %}" class="button">Regístrate aquí</a></p>
+      </div>
     </div>
-  {% endif %}
-
-  <form method="POST" action="{% url 'login' %}">
-    {% csrf_token %}
-    <div>
-      <label for="username">RUT</label>
-      <input id="username" name="username" required>
-    </div>
-    <div>
-      <label for="clave">Contraseña</label>
-      <input id="clave" name="clave" type="password" required>
-    </div>
-    {% if request.GET.next %}
-      <input type="hidden" name="next" value="{{ request.GET.next }}">
-    {% endif %}
-    <button type="submit">Ingresar</button>
-  </form>
-
-
+  </main>
 </body>
 </html>

@@ -3,7 +3,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.conf import settings
 from django.contrib import messages
 from .models import Usuario
-from .forms.usuarios import UsuarioForm
+from .forms.usuarios import UsuarioForm, RegistroClienteForm
 from apps.utils.decoradores import loginRequerido, sinLogin, soloAdminEmpleado
 
 
@@ -42,8 +42,31 @@ def loginView(request):
 
 def logoutView(request):
     logout(request)
-    messages.success(request, 'Sesión cerrada')
+    messages.success(request, 'Sesión cerrada')
     return redirect("/login")
+
+
+@sinLogin
+def registroView(request):
+
+    if request.method == "POST":
+        formulario = RegistroClienteForm(request.POST)
+        if formulario.is_valid():
+            try:
+                from django.contrib.auth.models import User
+                usuario = formulario.save()
+
+                User.objects.create_user(username=str(usuario.rut), password=formulario.cleaned_data['clave'])
+                messages.success(request, f'¡Registro exitoso! Bienvenido {usuario.nombre} {usuario.apellidoPaterno}. Ya puedes iniciar sesión.')
+                return redirect("login")
+            except Exception as excepcion:
+                messages.error(request, f'Error al registrar usuario: {str(excepcion)}')
+        else:
+            messages.error(request, 'Por favor corrige los errores del formulario.')
+    else:
+        formulario = RegistroClienteForm()
+    
+    return render(request, "registro.html", {"form": formulario})
 
 
 @loginRequerido
@@ -53,9 +76,7 @@ def crearUsuarios(request):
         formulario = UsuarioForm(request.POST)
         if formulario.is_valid():
             try:
-                # No guardar automáticamente para manejar la contraseña
                 usuario = formulario.save(commit=False)
-                # Usar setClave para hashear la contraseña
                 usuario.setClave(formulario.cleaned_data['clave'])
                 usuario.save()
                 messages.success(request, f'Usuario {usuario.nombre} {usuario.apellidoPaterno} creado exitosamente.')
@@ -88,9 +109,7 @@ def editarUsuario(request, rut):
         formulario = UsuarioForm(request.POST, instance=usuario, rutReadonly=True)
         if formulario.is_valid():
             try:
-                # No guardar automáticamente para manejar la contraseña
                 usuarioActualizado = formulario.save(commit=False)
-                # Solo actualizar la contraseña si se proporciona una nueva
                 if formulario.cleaned_data['clave']:
                     usuarioActualizado.setClave(formulario.cleaned_data['clave'])
                 usuarioActualizado.save()

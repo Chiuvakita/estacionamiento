@@ -46,7 +46,6 @@ def soloAdminEmpleado(funcion_vista):
                 return funcion_vista(request, *args, **kwargs)
             
             if not request.user.username.isdigit():
-                messages.error(request, "Usuario sin acceso a esta seccion")
                 return redirect('/estacionamientos/reservas')
             
             rut = int(request.user.username)
@@ -55,13 +54,10 @@ def soloAdminEmpleado(funcion_vista):
             if usuario.puedeGestionar():
                 return funcion_vista(request, *args, **kwargs)
             else:
-                messages.error(request, "No tienes permiso para acceder a esta pagina")
                 return redirect('/estacionamientos/reservas')
                 
         except ValueError:
-            messages.error(request, "Usuario no valido")
             return redirect('/estacionamientos/reservas')
         except Usuario.DoesNotExist:
-            messages.error(request, "Usuario no encontrado")
             return redirect("/login/")   
     return verificar
