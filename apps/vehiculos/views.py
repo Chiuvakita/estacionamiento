@@ -1,7 +1,9 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Vehiculo
 from .forms import VehiculoForm
-
+from apps.utils.decoradores import loginRequerido, soloCliente
+@loginRequerido
+@soloCliente
 def listarVehiculos(request):
     vehiculos = Vehiculo.objects.all()
     return render(request, 'vehiculos/listar.html', {'vehiculos': vehiculos})
@@ -23,6 +25,8 @@ def crearVehiculo(request):
 
     return render(request, 'vehiculos/crear.html', {'form': form, 'error': error})
 
+@loginRequerido
+@soloCliente
 def editarVehiculo(request, id):
     vehiculo = get_object_or_404(Vehiculo, id=id)
     form = VehiculoForm(request.POST or None, instance=vehiculo)
@@ -31,11 +35,14 @@ def editarVehiculo(request, id):
         return redirect('listarVehiculos')
     return render(request, 'vehiculos/editar.html', {'form': form})
 
+@loginRequerido
+@soloCliente
 def eliminarVehiculo(request, id):
     vehiculo = get_object_or_404(Vehiculo, id=id)
     vehiculo.delete()
     return redirect('listarVehiculos')
-
+@loginRequerido
+@soloCliente
 def eliminarTodosVehiculos(request):
     Vehiculo.objects.all().delete()
     return redirect('listarVehiculos')

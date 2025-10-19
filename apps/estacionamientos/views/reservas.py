@@ -5,9 +5,10 @@ from ..models.estacionamiento import Estacionamiento
 from apps.vehiculos.models import Vehiculo
 from ..forms.reservas import ReservaCrearForm, Reserva
 from .services import ocupar_estacionamiento, liberar_estacionamiento, existe_reserva_activa_o_programada
-from apps.utils.decoradores import loginRequerido
+from apps.utils.decoradores import loginRequerido, soloCliente
 
 @loginRequerido
+@soloCliente
 def listarReserva(request):
     data = []
     ahora = timezone.now()
@@ -38,6 +39,7 @@ def listarReserva(request):
 
     return render(request, "reserva/reservaListar.html", {"reservas": data})
 @loginRequerido
+@soloCliente
 def crearReserva(request):
     error = None
 
@@ -77,6 +79,7 @@ def crearReserva(request):
     })
 
 @loginRequerido
+@soloCliente
 def terminarReserva(request, id):
     r = get_object_or_404(Reserva, pk=id)
 
