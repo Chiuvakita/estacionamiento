@@ -1,40 +1,33 @@
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.http import HttpResponse
 from apps.empresas.models import Empresa,Sucursal
+from . import forms
 
-# Create your views here.
-def listar_empresas(request):
-    return render(request, "empresaListar.html")
-      
-# Realizar crearEmpresa
-def crearEmpresa(request, empresa=None):
-    if request.method == "POST": #Si el metodo es POST
+# Realizar gestionarEmpresa
+def gestionarEmpresa(request, empresa_id=None):#funcion para crear y editar empresa
     
-        empresa = Empresa.objects.create( #Se crea la empresa con los valores del formulario
-            nombre=request.POST.get("nombre"),
-            telefono=request.POST.get("telefono"),
-            correo=request.POST.get("correo"),
-            direccion=request.POST.get("direccion")
-        )
-        return render(request,"empresaCreada.html",{"empresa": empresa}) #Y se retorna la página de empresa creada, incluyendo la empresa como objeto
-    return render(request, "empresaForm.html") #Si es GET, se muestra el formulario
+    if empresa_id:  # Si se proporciona un ID de empresa, estamos editando una empresa existente
+        empresa = Empresa.objects.get(id=empresa_id)
+    else:
+        empresa = None  # Si no, estamos creando una nueva empresa
+    
+    if request.method == "POST": #Si el metodo es POST
+        formulario = forms.EmpresaForm(request.POST, instance=empresa) #Se crea el formulario con los datos del POST y la instancia de empresa
+        if formulario.is_valid(): #Si el formulario es valido
+            formulario.save() #Se guarda el formulario
+            return redirect("empresas_listar") #Se redirige a la lista de empresas
+    else:
+        formulario = forms.EmpresaForm(instance=empresa) ## Si es edición, formulario con datos; si es creación, formulario vacío
+        
+    titulo = "Editar Empresa" if empresa_id else "Crear Empresa"
+
+    datos = {'formulario': formulario, 'titulo': titulo} #Se crea un diccionario con el formulario y el título
+    return render(request, "empresaForm.html", datos) #Se renderiza con el diccionario
     
 # Realizar listarEmpresa
 def listarEmpresa(request):
     empresas = Empresa.objects.all() #Se obtienen todas las empresas
     return render(request, "empresaListar.html", {"empresas": empresas}) #Y se pasan a la plantilla como lista de objetos
-
-# Realizar editarEmpresa
-def editarEmpresa(request, empresa_id):
-    empresa = Empresa.objects.get(id=empresa_id)  # Se obtiene la empresa a editar por su id
-    if request.method == "POST":
-        empresa.nombre = request.POST.get("nombre")
-        empresa.telefono = request.POST.get("telefono")
-        empresa.correo = request.POST.get("correo")
-        empresa.direccion = request.POST.get("direccion")
-        empresa.save()
-        return render(request, "empresaEditar.html", {"empresa": empresa})  # Redirige al formulario de edición con los datos actualizados
-    return render(request, "empresaEditar.html", {"empresa": empresa})  # Si es GET, muestra el formulario de edición con los datos actuales
 
 # Realizar eliminarEmpresa
 def eliminarEmpresa(request, empresa_id):
