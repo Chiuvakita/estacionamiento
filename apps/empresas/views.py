@@ -40,7 +40,7 @@ def eliminarEmpresa(request, empresa_id):
     empresa = Empresa.objects.get(id=empresa_id)  # Se obtiene la empresa que se va a eliminar
     if request.method == "POST":
         empresa.delete()  # Se elimina la empresa
-        return listarEmpresa(request)  # Llama a la vista de listarEmpresa para recargar la página
+        return redirect("empresas_listar")  # Llama a la vista de listarEmpresa para recargar la página
     return HttpResponse("Método erróneo")  # Si no es POST, retorna un error
     
     
@@ -81,5 +81,5 @@ def eliminarSucursal(request, sucursal_id):
     sucursal = Sucursal.objects.get(id=sucursal_id)  # Se obtiene la sucursal que se va a eliminar
     if request.method == "POST":
         sucursal.delete()  # Se elimina la sucursal
-        return listarSucursal(request)  # Llama a la vista de listarSucursal para recargar la página
+        return redirect("listarSucursal")  # Llama a la vista de listarSucursal para recargar la página
     return HttpResponse("Método erróneo")  # Si no es POST, retorna un error
