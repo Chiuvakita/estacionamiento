@@ -15,7 +15,7 @@
     
     <div>
       <h2>Ingresar vehículo</h2>
-      <form method="post">
+      <form method="post" action="{% url 'home' %}">
         {% csrf_token %}
         <input type="text" name="patente" placeholder="Patente" required>
 
@@ -25,12 +25,14 @@
           <option value="especifico">Seleccionar espacio</option>
         </select>
 
-        <!-- Menú oculto al inicio -->
+        <!-- Menú oculto -->
         <div id="select-estacionamiento" style="display: none; margin-top: 10px;">
           <label for="estacionamiento_id">Espacio</label>
           <select name="estacionamiento_id" id="estacionamiento_id">
             {% for e in estacionamientos %}
-              <option value="{{ e.id }}">#{{ e.id }} - {{ e.get_estado_display }}</option>
+              {% if e.estado == 'D' %}
+                <option value="{{ e.id }}">#{{ e.id }} - Disponible ({{ e.tipo }})</option>
+              {% endif %}
             {% endfor %}
           </select>
         </div>
@@ -56,15 +58,9 @@
     <tr><th>Espacio</th><th>Patente</th><th>Hora de ingreso</th><th>Acción</th></tr>
     {% for e in ocupados %}
     <tr>
-      <td>Espacio #{{ e.id }}</td>
+      <td>#{{ e.id }}</td>
       <td>{{ e.patente }}</td>
-      <td>
-        {% if e.fecha_inicio %}
-          {{ e.fecha_inicio|date:"H:i" }}
-        {% else %}
-          -
-        {% endif %}
-      </td>
+      <td>{% if e.fecha_inicio %}{{ e.fecha_inicio|date:"H:i" }}{% else %}-{% endif %}</td>
       <td><a href="{% url 'marcarSalida' e.id %}" class="button button-danger">Marcar salida</a></td>
     </tr>
     {% empty %}
@@ -75,9 +71,17 @@
 
 <script src="{% static 'js/validaciones.js' %}"></script>
 <script>
-  document.querySelector("form[method='post']").addEventListener("submit", validarIngresoVehiculo);
-  document.querySelector("form[action$='salida_por_patente/']").addEventListener("submit", validarSalidaPatente);
-  document.querySelectorAll(".button-danger").forEach(btn => btn.addEventListener("click", confirmarAccion));
+  document.addEventListener("DOMContentLoaded", () => {
+    const formIngreso = document.querySelector("form[action$='{% url 'home' %}']");
+    if (formIngreso) formIngreso.addEventListener("submit", validarIngresoVehiculo);
+
+    const formSalida = document.querySelector("form[action$='salida_por_patente/']");
+    if (formSalida) formSalida.addEventListener("submit", validarSalidaPatente);
+
+    document.querySelectorAll(".button-danger").forEach(btn => {
+      btn.addEventListener("click", confirmarAccion);
+    });
+  });
 </script>
 
 {% endblock %}

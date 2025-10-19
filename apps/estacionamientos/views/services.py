@@ -3,20 +3,20 @@ from ..models.estacionamiento import Estacionamiento
 from ..models.reserva import Reserva
 from ..models.historial import Historial
 
-def ocupar_estacionamiento(est: Estacionamiento, patente: str, fecha_inicio=None, fecha_termino=None, es_reserva=False):
+def ocupar_estacionamiento(est: Estacionamiento, patente: str, fecha_inicio=None, es_reserva=False):
     if fecha_inicio is None:
         fecha_inicio = timezone.now()
     est.estado = "O"
     est.patente = patente
     est.fecha_inicio = fecha_inicio
-    est.fecha_termino = fecha_termino
+    est.fecha_termino = None  
     est.save()
 
     Historial.objects.create(
         estacionamiento_id=est.id,
         patente=patente,
         fecha_inicio=fecha_inicio,
-        fecha_termino=fecha_termino,
+        fecha_termino=None,  
         es_reserva=es_reserva
     )
 

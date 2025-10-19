@@ -56,27 +56,21 @@ def editarEstacionamiento(request, id):
 @soloAdminEmpleado
 def eliminarTodosEstacionamientos(request):
     if request.method == "POST":
+        Estacionamiento.objects.all().delete()
         Reserva.objects.all().delete()
         Historial.objects.all().delete()
-        Estacionamiento.objects.all().delete()
-
-        with connection.cursor() as cursor:
-            cursor.execute("""
-                DELETE FROM sqlite_sequence 
-                WHERE name IN ('estacionamientos_estacionamiento', 'estacionamientos_reserva', 'estacionamientos_historial');
-            """)
 
         return redirect("listarEstacionamiento")
 
     return redirect("listarEstacionamiento")
 
+
 @loginRequerido
 @soloAdminEmpleado
 def eliminarEstacionamiento(request, id):
-    est = get_object_or_404(Estacionamiento, pk=id)
     if request.method == "POST":
+        est = get_object_or_404(Estacionamiento, pk=id)
         est.delete()
-        with connection.cursor() as cursor:
-            cursor.execute("DELETE FROM sqlite_sequence WHERE name='estacionamientos_estacionamiento';")
         return redirect("listarEstacionamiento")
+
     return redirect("listarEstacionamiento")
