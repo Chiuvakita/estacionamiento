@@ -15,8 +15,3 @@ class Sucursal(models.Model):
     nombreSucursal = models.CharField(max_length=100)
     direccion = models.CharField(max_length=300)
     numero = models.CharField(max_length=45)
-    empresa = models.ForeignKey( #Esto es la foreign key, relaciona ambos modelos
-        Empresa, #Esta es la referencia, a qué modelo apunta
-        on_delete=models.CASCADE, #Cascade indica que se borran las sucursales si se borra la empresa
-        related_name="sucursales" #Esto es para acceder 
-    )

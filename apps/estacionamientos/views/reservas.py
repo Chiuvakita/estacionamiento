@@ -52,7 +52,7 @@ def crearReserva(request):
             fecha_termino = fecha_inicio + timedelta(hours=duracion_horas)
 
             est_id = form.cleaned_data["estacionamiento_id"]
-            est = Estacionamiento.objects.filter(pk=est_id).first()
+            est = Estacionamiento.objects.filter(pk=est_id).first()  # ✅ Correcto
 
             if existe_reserva_activa_o_programada():
                 error = "Ya existe una reserva activa o programada. Finalízala antes de crear otra."
