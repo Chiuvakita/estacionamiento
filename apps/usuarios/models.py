@@ -1,5 +1,5 @@
 from django.db import models
-
+from django.contrib.auth.hashers import make_password, check_password
 
 class Usuario(models.Model):
     ROLES = [
@@ -13,8 +13,9 @@ class Usuario(models.Model):
     apellidoPaterno = models.CharField(max_length=45)
     apellidoMaterno = models.CharField(max_length=45)
     numeroTelefono = models.CharField(max_length=45)
+    clave = models.CharField(max_length=130, default="")
     rol = models.CharField(max_length=45, choices=ROLES, default="Cliente")
-    discapacidad = models.BooleanField()
+    discapacidad = models.BooleanField(default=False)
 
     class Meta:
         db_table = "usuarios"
@@ -30,5 +31,11 @@ class Usuario(models.Model):
     
     def puedeGestionar(self):
         return self.rol in ["Administrador", "Empleado"]
+    
+    def setClave(self, claveSinHash):
+        self.clave = make_password(claveSinHash)
+    
+    def checkClave(self, claveSinHash):
+        return check_password(claveSinHash, self.clave)
     def __str__(self):
         return f"{self.nombre} {self.apellidoPaterno} {self.apellidoMaterno} {self.rol} {self.discapacidad}"
