@@ -1,9 +1,5 @@
-
 from django.shortcuts import redirect
-
-from django.conf import settings
 from apps.usuarios.models import Usuario
-from django.contrib import messages
 from functools import wraps
 def loginRequerido(funcion_vista):
     @wraps(funcion_vista)
@@ -24,11 +20,11 @@ def sinLogin(funcion_vista):
                     usuario = Usuario.objects.get(rut=rut)
                     
                     if usuario.puedeGestionar():
-                        return redirect('/estacionamientos/')
+                        return redirect('/estacionamientos')
                     else: 
-                        return redirect('/estacionamientos/')
+                        return redirect('/login/')
                 else:
-                    return redirect('/usuarios/')
+                    return redirect('/login/')
                     
             except (Usuario.DoesNotExist, ValueError):
                 return redirect('/login/')
@@ -48,7 +44,7 @@ def soloAdminEmpleado(funcion_vista):
                 return funcion_vista(request, *args, **kwargs)
             
             if not request.user.username.isdigit():
-                return redirect('/estacionamientos/reservas')
+                return redirect('/login')
             
             rut = int(request.user.username)
             usuario = Usuario.objects.get(rut=rut)
@@ -56,12 +52,12 @@ def soloAdminEmpleado(funcion_vista):
             if usuario.puedeGestionar():
                 return funcion_vista(request, *args, **kwargs)
             else:
-                return redirect('/estacionamientos/reservas')
+                return redirect('/estacionamientos/reservas/')
                 
         except ValueError:
-            return redirect('/estacionamientos/reservas')
+            return redirect('/login')
         except Usuario.DoesNotExist:
-            return redirect("/login/")   
+            return redirect("/login")   
     return verificar
 
 def soloCliente(funcion_vista):
@@ -83,7 +79,7 @@ def soloCliente(funcion_vista):
                 return redirect('/estacionamientos/')
                 
         except ValueError:
-            return redirect('/estacionamientos/')
+            return redirect('/login/')
         except Usuario.DoesNotExist:
             return redirect("/login/")
     return verificar
