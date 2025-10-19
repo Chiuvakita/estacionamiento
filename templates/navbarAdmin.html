@@ -8,9 +8,11 @@
 </head>
 <body>
   <nav class="navbar">
-    <a class="{% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'home' %}">Inicio</a>
-    <a class="{% if request.resolver_match.url_name in 'empresas_listar crearEmpresa editarEmpresa' %}active{% endif %}"
-       href="{% url 'empresas_listar' %}">Empresas</a>
+   <a class="{% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'home' %}">Inicio</a>
+   <a class="{% if request.resolver_match.url_name in 'empresas_listar crearEmpresa editarEmpresa' %}active{% endif %}"
+     href="{% url 'empresas_listar' %}">Empresas</a>
+   <a class="{% if request.resolver_match.url_name in 'listarUsuarios crearUsuarios editarUsuario' %}active{% endif %}"
+     href="{% url 'listarUsuarios' %}">Usuarios</a>
     <a class="{% if request.resolver_match.url_name in 'listarEstacionamiento crearEstacionamiento editarEstacionamiento' %}active{% endif %}"
        href="{% url 'listarEstacionamiento' %}">Estacionamientos</a>
     <a class="{% if request.resolver_match.url_name == 'listarHistorial' %}active{% endif %}"
