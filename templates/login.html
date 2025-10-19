@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Iniciar sesión</title>
+</head>
+<body>
+  <h1>Iniciar sesión</h1>
+
+  {% if messages %}
+    <div>
+      {% for message in messages %}<p>{{ message }}</p>{% endfor %}
+    </div>
+  {% endif %}
+
+  <form method="POST" action="{% url 'login' %}">
+    {% csrf_token %}
+    <div>
+      <label for="username">RUT</label>
+      <input id="username" name="username" required>
+    </div>
+    <div>
+      <label for="clave">Contraseña</label>
+      <input id="clave" name="clave" type="password" required>
+    </div>
+    {% if request.GET.next %}
+      <input type="hidden" name="next" value="{{ request.GET.next }}">
+    {% endif %}
+    <button type="submit">Ingresar</button>
+  </form>
+
+
+</body>
+</html>
