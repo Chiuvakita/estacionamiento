@@ -1,7 +1,7 @@
 from django.urls import path
 from . import views
 
-urlpatterns = [
+urlpatterns = [ 
     path("", views.listarEmpresa, name="empresas_listar"),
     path("crearEmpresa/", views.gestionarEmpresa, name="crearEmpresa"),# Definir ruta crearEmpresa
     path("listarEmpresa/", views.listarEmpresa, name="listarEmpresa"),# Definir ruta listarEmpresa
