@@ -4,7 +4,26 @@ from django.conf import settings
 from django.contrib import messages
 from .models import Usuario
 from .forms.usuarios import UsuarioForm
-from .decoradores import loginRequerido, sinLogin, soloAdminEmpleado
+from apps.utils.decoradores import loginRequerido, sinLogin, soloAdminEmpleado
+
+
+@loginRequerido
+def homeCliente(request):
+
+    if hasattr(request.user, 'username') and request.user.username.isdigit():
+        rut = int(request.user.username)
+        try:
+            usuario = Usuario.objects.get(rut=rut)
+            if usuario.rol == 'Cliente':
+                return render(request, 'homeCliente.html')
+        except Usuario.DoesNotExist:
+            pass
+    return redirect('login')
+
+@loginRequerido
+@soloAdminEmpleado
+def homeAdmin(request):
+    return render(request, 'homeAdmin.html')
 
 @sinLogin
 def loginView(request):
@@ -15,8 +34,7 @@ def loginView(request):
 
         if user is not None:
             login(request, user)
-            nextUrl = request.GET.get("next", settings.RUTA_DESPUES_LOGIN)
-            return redirect(nextUrl)
+            return redirect("/estacionamientos/")
         else:
             messages.error(request, 'Usuario o contraseña incorrectos.')
 
@@ -25,7 +43,7 @@ def loginView(request):
 def logoutView(request):
     logout(request)
     messages.success(request, 'Sesión cerrada')
-    return redirect(settings.RUTA_LOGIN)
+    return redirect("/login")
 
 
 @loginRequerido

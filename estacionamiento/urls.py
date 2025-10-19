@@ -16,16 +16,33 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from apps.usuarios import views
+from apps.usuarios.models import Usuario
+
+from apps.usuarios.views import homeCliente, homeAdmin
 
 def home(request):
-    return render(request, "home.html")
+    if request.user.is_authenticated:
+        # Si es cliente
+        if hasattr(request.user, 'username') and request.user.username.isdigit():
+            
+            try:
+                rut = int(request.user.username)
+                usuario = Usuario.objects.get(rut=rut)
+                if usuario.rol == 'Cliente':
+                    return homeCliente(request)
+            except Usuario.DoesNotExist:
+                pass
+        # Si es admin o empleado
+        return homeAdmin(request)
+    else:
+        return redirect('login')
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("", home, name="home"),
-    
+
     path("login/", views.loginView, name="login"), 
     path("logout/", views.logoutView, name="logout"),
 
