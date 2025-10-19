@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Listado de Sucursales</title>
+</head>
+<body>
+    <div class="actions" style="margin: 10px 0;">
+        <a class="button" href="{% url 'home' %}">Inicio</a>
+        <a class="button" href="{% url 'crearSucursal' %}">Crear nueva sucursal</a>
+    </div>
+    <h1>Listado de Sucursales</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Dirección</th>
+                <th>Número</th>
+                <th>Acciones</th>
+                <th>Cantidad de Estacionamientos</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for sucursal in sucursales %}
+            <tr>
+                <td>{{ sucursal.id }}</td>
+                <td>{{ sucursal.nombreSucursal }}</td>
+                <td>{{ sucursal.direccion }}</td>
+                <td>{{ sucursal.numero }}</td>
+                <td>{{ sucursal.cantidadEstacionamiento }}</td>
+                <td>
+                    <a href="{% url 'editarSucursal' sucursal.id %}">Editar</a>
+                    <form action="{% url 'eliminarSucursal' sucursal.id %}" method="POST" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit"
+                                onclick="return confirm('¿Está seguro de que desea eliminar esta sucursal?');">
+                            Eliminar
+                        </button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

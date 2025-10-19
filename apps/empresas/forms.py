@@ -7,3 +7,7 @@ class EmpresaForm(forms.ModelForm):
         fields = '__all__'
 
 # Definir formulario para Sucursal
+class SucursalForm(forms.ModelForm):
+    class Meta:
+        model = Sucursal
+        fields = '__all__'
