@@ -1,10 +1,14 @@
 from django.shortcuts import redirect, render
 from django.http import HttpResponse
 from apps.empresas.models import Empresa,Sucursal
-from . import forms
+from apps.utils.decoradores import loginRequerido, soloAdminEmpleado
 
-# Realizar gestionarEmpresa
-def gestionarEmpresa(request, empresa_id=None):#funcion para crear y editar empresa
+
+# Realizar crearEmpresa
+@loginRequerido
+@soloAdminEmpleado
+def gestionarEmpresa(request, empresa=None):
+    if request.method == "POST": #Si el metodo es POST
     
     if empresa_id:  # Si se proporciona un ID de empresa, estamos editando una empresa existente
         empresa = Empresa.objects.get(id=empresa_id)
@@ -24,12 +28,14 @@ def gestionarEmpresa(request, empresa_id=None):#funcion para crear y editar empr
     datos = {'formulario': formulario, 'titulo': titulo} #Se crea un diccionario con el formulario y el título
     return render(request, "empresaForm.html", datos) #Se renderiza con el diccionario
     
-# Realizar listarEmpresa
+@loginRequerido
+@soloAdminEmpleado
 def listarEmpresa(request):
     empresas = Empresa.objects.all() #Se obtienen todas las empresas
     return render(request, "empresaListar.html", {"empresas": empresas}) #Y se pasan a la plantilla como lista de objetos
 
-# Realizar eliminarEmpresa
+@loginRequerido
+@soloAdminEmpleado
 def eliminarEmpresa(request, empresa_id):
     empresa = Empresa.objects.get(id=empresa_id)  # Se obtiene la empresa que se va a eliminar
     if request.method == "POST":
@@ -39,11 +45,15 @@ def eliminarEmpresa(request, empresa_id):
     
     
 # Realizar listarSucursal
+@loginRequerido
+@soloAdminEmpleado
 def listarSucursal(request):
     sucursales = Sucursal.objects.all() #Se obtienen todas las sucursales
     return render(request, "sucursalListar.html", {"sucursales": sucursales}) #Y se pasan a la plantilla como lista de objetos
 
 # Realizar gestionarSucursal
+@loginRequerido
+@soloAdminEmpleado
 def gestionarSucursal(request, sucursal_id=None):#funcion para crear y editar sucursal
     
     if sucursal_id:  # Si se proporciona un ID de sucursal, estamos editando una sucursal existente
@@ -65,6 +75,8 @@ def gestionarSucursal(request, sucursal_id=None):#funcion para crear y editar su
     return render(request, "sucursalForm.html", datos) #Se renderiza con el diccionario
 
 # Realizar eliminarSucursal
+@loginRequerido
+@soloAdminEmpleado
 def eliminarSucursal(request, sucursal_id):
     sucursal = Sucursal.objects.get(id=sucursal_id)  # Se obtiene la sucursal que se va a eliminar
     if request.method == "POST":

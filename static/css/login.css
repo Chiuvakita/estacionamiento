@@ -20,7 +20,11 @@ body {
   background: var(--bg);
   color: var(--text);
   margin: 0;
-  padding-top: 70px;
+  padding: 20px;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* INPUTS */
@@ -83,42 +87,10 @@ a.button:hover, button:hover, .button:hover {
   background: var(--danger-dark) !important;
 }
 
-/* NAVBAR */
-.navbar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  background: var(--bg-card);
-  border-bottom: 1px solid var(--bg-alt);
-  padding: 15px 30px;
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 20px;
-  box-shadow: var(--shadow);
-  z-index: 1000;
-}
-
-.navbar a {
-  color: var(--text);
-  text-decoration: none;
-  font-weight: 500;
-  padding: 6px 14px;
-  border-radius: var(--radius);
-  transition: background 0.2s ease, transform 0.15s ease;
-}
-
-.navbar a:hover {
-  background: var(--bg-alt);
-  transform: translateY(-2px);
-}
-
 /* CONTENIDO */
 main {
-  padding: 40px 20px;
-  max-width: 1100px;
-  margin: 0 auto;
+  width: 100%;
+  max-width: 500px;
 }
 
 h1 {
@@ -133,61 +105,93 @@ h1 {
   background: var(--bg-card);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  padding: 20px;
+  padding: 30px;
   margin-bottom: 20px;
   transition: transform 0.2s ease;
 }
-.card:hover {
-  transform: translateY(-3px);
+
+/* FORMULARIOS */
+.form-group {
+  margin-bottom: 20px;
 }
 
-/* TABLAS */
-table {
-  width: 100%;
-  border-collapse: collapse;
-  background: var(--bg-card);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  overflow: hidden;
-  margin-top: 20px;
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
   color: var(--text);
-}
-
-th, td {
-  padding: 14px;
-  text-align: left;
-  border-bottom: 1px solid var(--bg-alt);
-}
-
-th {
-  background: var(--bg-alt);
-  color: var(--text-light);
   font-weight: 600;
 }
 
-tr:hover td {
-  background: #2d3748;
+.form-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 30px;
 }
 
-/* RESPONSIVE */
-@media (max-width: 768px) {
-  table, tr, td, th {
-    display: block;
-    width: 100%;
-  }
-  tr {
-    margin-bottom: 15px;
-    border: 1px solid var(--bg-alt);
-    border-radius: var(--radius);
-    padding: 10px;
-  }
-  td {
-    padding: 8px 10px;
-    border: none;
-    display: flex;
-    justify-content: space-between;
-  }
-  th {
-    display: none;
-  }
+.messages {
+  margin-bottom: 20px;
+}
+
+.alert {
+  padding: 12px 16px;
+  margin-bottom: 10px;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+}
+
+.alert-success {
+  color: var(--success);
+  background-color: rgba(16, 185, 129, 0.1);
+  border-color: var(--success);
+}
+
+.alert-error {
+  color: var(--danger);
+  background-color: rgba(255, 93, 108, 0.1);
+  border-color: var(--danger);
+}
+
+.field-errors .error {
+  color: var(--danger);
+  font-size: 14px;
+  display: block;
+  margin-top: 5px;
+}
+
+.form-help {
+  color: var(--text-light);
+  font-size: 12px;
+  display: block;
+  margin-top: 5px;
+}
+
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.checkbox-group input[type="checkbox"] {
+  width: auto;
+  margin: 0;
+}
+
+/* Estilos específicos para login */
+.usuario-form {
+  width: 100%;
+}
+
+.form-control {
+  width: 100%;
+  padding: 10px 14px;
+  margin: 6px 0;
+  border: 1px solid var(--bg-alt);
+  border-radius: var(--radius);
+  background: var(--bg-card);
+  color: var(--text);
+  font-size: 1rem;
+  outline: none;
+  box-sizing: border-box;
+  transition: border 0.2s ease, box-shadow 0.2s ease;
 }

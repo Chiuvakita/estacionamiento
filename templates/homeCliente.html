@@ -1,0 +1,6 @@
+{% include 'navbarCliente.html' %}
+<main>
+  <h1>Bienvenido, {{ request.user.nombreCompleto }}</h1>
+  <p>Desde aquí puedes gestionar tus reservas de estacionamiento.</p>
+  <a class="button" href="{% url 'listarReserva' %}">Ver mis reservas</a>
+</main>

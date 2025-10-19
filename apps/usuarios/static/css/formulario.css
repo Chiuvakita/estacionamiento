@@ -1,226 +1,193 @@
-.btn-cancelar{
-    background: linear-gradient(135deg, #f56565 0%, #c53030 100%) !important;
-    color: #fff !important;
-    box-shadow: 0 4px 15px rgba(245, 101, 101, 0.25) !important;
-    border: none !important;
-    border-radius: 12px !important;
-    padding: 14px 28px !important;
-    font-weight: 600;
-    min-width: 120px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    outline: none;
-    text-decoration: none !important;
-}
-.btn-cancelar:hover {
-    background: linear-gradient(135deg, #c53030 0%, #9b2c2c 100%) !important;
-    color: #fff !important;
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(245, 101, 101, 0.35) !important;
-    text-decoration: none !important;
+:root {
+  --primary: #3B82F6;
+  --primary-dark: #1D4ED8;
+  --success: #10B981;
+  --success-dark: #047857;
+  --danger: #ff5d6c;
+  --danger-dark: #d94d5b;
+  --bg: #111827;
+  --bg-card: #1F2937;
+  --bg-alt: #374151;
+  --text: #F9FAFB;
+  --text-light: #9CA3AF;
+  --radius: 12px;
+  --shadow: 0 6px 16px rgba(0,0,0,0.4);
 }
 
-.btn-secondary {
-    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
-    color: #fff;
-    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.15);
-    border: none;
-    border-radius: 12px;
-    padding: 14px 28px;
-    font-weight: 600;
-    min-width: 120px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    outline: none;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 16px;
-    cursor: pointer;
-}
-
-.btn-secondary:hover {
-    background: linear-gradient(135deg, #0056b3 0%, #003974 100%);
-    color: #fff;
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0, 123, 255, 0.25);
-    text-decoration: none;
-}
+/* GLOBAL */
 body {
-    margin: 0;
-    padding: 0;
-    font-family: Arial, sans-serif;
-    background-color: white;
-    min-height: 100vh;
+  font-family: "Inter", "Segoe UI", Roboto, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  margin: 0;
+  padding-top: 70px;
 }
 
-.container {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    padding: 20px;
+/* INPUTS */
+input, select, textarea {
+  width: 100%;
+  padding: 10px 14px;
+  margin: 6px 0;
+  border: 1px solid var(--bg-alt);
+  border-radius: var(--radius);
+  background: var(--bg-card);
+  color: var(--text);
+  font-size: 1rem;
+  outline: none;
+  box-sizing: border-box;
+  transition: border 0.2s ease, box-shadow 0.2s ease;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.4);
+}
+
+::placeholder {
+  color: #aaa;
+  opacity: 0.7;
+}
+
+/* BOTONES base */
+a.button, button, .button {
+  display: inline-block;
+  margin: 6px;
+  padding: 12px 22px;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-size: 1rem;
+  background: var(--primary);
+  color: #fff;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+a.button:hover, button:hover, .button:hover {
+  background: var(--primary-dark);
+  transform: scale(1.04);
+}
+
+/* BOTONES ESPECIALES */
+.button-success {
+  background: var(--success) !important;
+}
+.button-success:hover {
+  background: var(--success-dark) !important;
+}
+
+.button-danger {
+  background: var(--danger) !important;
+}
+.button-danger:hover {
+  background: var(--danger-dark) !important;
+}
+
+/* NAVBAR */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--bg-alt);
+  padding: 15px 30px;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 20px;
+  box-shadow: var(--shadow);
+  z-index: 1000;
+}
+
+.navbar a {
+  color: var(--text);
+  text-decoration: none;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: var(--radius);
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.navbar a:hover {
+  background: var(--bg-alt);
+  transform: translateY(-2px);
+}
+
+/* CONTENIDO */
+main {
+  padding: 40px 20px;
+  max-width: 1100px;
+  margin: 0 auto;
 }
 
 h1 {
-    .btn, .btn:visited, .btn:active, .btn:focus {
-        padding: 14px 28px;
-        border: none;
-        border-radius: 12px;
-        text-decoration: none !important;
-        font-size: 16px;
-        font-weight: 600;
-        cursor: pointer;
-        display: inline-block;
-        text-align: center;
-        min-width: 120px;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        outline: none;
-    }
-    .btn:focus {
-        box-shadow: 0 0 0 3px rgba(102,126,234,0.2);
-    }
-    width: 100%;
-    max-width: 400px;
+  color: var(--text);
+  margin-bottom: 30px;
+  font-size: 2rem;
+  text-align: center;
 }
 
-label {
+/* TARJETAS */
+.card {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 20px;
+  margin-bottom: 20px;
+  transition: transform 0.2s ease;
+}
+.card:hover {
+  transform: translateY(-3px);
+}
+
+/* TABLAS */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  margin-top: 20px;
+  color: var(--text);
+}
+
+th, td {
+  padding: 14px;
+  text-align: left;
+  border-bottom: 1px solid var(--bg-alt);
+}
+
+th {
+  background: var(--bg-alt);
+  color: var(--text-light);
+  font-weight: 600;
+}
+
+tr:hover td {
+  background: #2d3748;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  table, tr, td, th {
     display: block;
-    margin-bottom: 5px;
-    color: #555;
-    font-weight: bold;
-}
-
-input[type="text"],
-input[type="number"],
-input[type="tel"],
-select {
     width: 100%;
-    padding: 12px;
+  }
+  tr {
     margin-bottom: 15px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 16px;
-    box-sizing: border-box;
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: textfield;
-}
-
-/* Quitar flechas del input number en WebKit */
-input[type="number"]::-webkit-outer-spin-button,
-input[type="number"]::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-}
-
-input[type="text"]:focus,
-input[type="number"]:focus,
-input[type="tel"]:focus,
-select:focus {
-    border-color: #007bff;
-    outline: none;
-    box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
-}
-
-input[type="checkbox"] {
-    margin-right: 8px;
-    transform: scale(1.2);
-}
-
-
-.checkbox-container {
+    border: 1px solid var(--bg-alt);
+    border-radius: var(--radius);
+    padding: 10px;
+  }
+  td {
+    padding: 8px 10px;
+    border: none;
     display: flex;
-    align-items: center;
-    margin-bottom: 15px;
-}
-
-/* Estilos específicos para Django Forms */
-.form-group {
-    margin-bottom: 20px;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 5px;
-    color: #555;
-    font-weight: bold;
-}
-
-.form-control {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 16px;
-    box-sizing: border-box;
-}
-
-.form-control:focus {
-    border-color: #007bff;
-    outline: none;
-    box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
-}
-
-.readonly-field {
-    background-color: #f8f9fa !important;
-    color: #6c757d !important;
-    cursor: not-allowed;
-}
-
-.checkbox-group {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.checkbox-group .form-check-input {
-    width: auto;
-    margin: 0;
-}
-
-.field-errors .error {
-    color: #dc3545;
-    font-size: 14px;
-    display: block;
-    margin-top: 5px;
-}
-
-.form-help p {
-    color: #6c757d0f;
-    font-size: 12px;
-    display: block;
-    margin-top: 5px;
-}
-
-.form-actions {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin:0;
-    gap: 10px;
-
-    margin-top: 20px;
-}
-
-
-.messages {
-    margin-bottom: 20px;
-}
-
-.alert {
-    padding: 10px 15px;
-    margin-bottom: 10px;
-    border: 1px solid transparent;
-    border-radius: 5px;
-}
-
-.alert-success {
-    color: #155724;
-    background-color: #d4edda;
-    border-color: #c3e6cb;
-}
-
-.alert-error {
-    color: #721c24;
-    background-color: #f8d7da;
-    border-color: #f5c6cb;
+    justify-content: space-between;
+  }
+  th {
+    display: none;
+  }
 }

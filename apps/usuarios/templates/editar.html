@@ -1,15 +1,7 @@
+{% include 'navbarAdmin.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Editar Usuario</title>
-  <link rel="stylesheet" href="{% static 'css/formulario.css' %}">
-</head>
-<body>
-  <div class="container">
-    <h1>Editar Usuario - {{ usuario.nombre }} {{ usuario.apellidoPaterno }}</h1>
+<main>
+  <h1>Editar Usuario - {{ usuario.nombre }} {{ usuario.apellidoPaterno }}</h1>
     
     <form method="post" class="usuario-form">
       {% csrf_token %}
@@ -98,11 +90,38 @@
         {% endif %}
       </div>
       
+      <div class="form-group">
+        <label for="{{ form.clave.id_for_label }}">{{ form.clave.label }}:</label>
+        {{ form.clave }}
+        {% if form.clave.help_text %}
+          <small class="form-help">{{ form.clave.help_text }}</small>
+        {% endif %}
+        {% if form.clave.errors %}
+          <div class="field-errors">
+            {% for error in form.clave.errors %}
+              <span class="error">{{ error }}</span>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+      <div class="form-group">
+        <label for="{{ form.confirmar_clave.id_for_label }}">{{ form.confirmar_clave.label }}:</label>
+        {{ form.confirmar_clave }}
+        {% if form.confirmar_clave.help_text %}
+          <small class="form-help">{{ form.confirmar_clave.help_text }}</small>
+        {% endif %}
+        {% if form.confirmar_clave.errors %}
+          <div class="field-errors">
+            {% for error in form.confirmar_clave.errors %}
+              <span class="error">{{ error }}</span>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+      
       <div class="form-actions">
-        <button type="submit" class="btn btn-secondary">Guardar Cambios</button>
-        <a href="{% url 'listarUsuarios' %}" class="btn btn-cancelar">Cancelar</a>
+        <button type="submit" class="button">Guardar Cambios</button>
+        <a href="{% url 'listarUsuarios' %}" class="button button-danger">Cancelar</a>
       </div>
     </form>
-  </div>
-</body>
-</html>
+</main>
