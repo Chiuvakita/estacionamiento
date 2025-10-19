@@ -10,7 +10,6 @@ from .views.historial import listarHistorial
 
 urlpatterns = [
     # Home 
-    path("", home, name="home"),
     path("salida/<int:id>/", marcarSalida, name="marcarSalida"),
     path("salida_por_patente/", marcarSalidaPatente, name="marcarSalidaPatente"),
 

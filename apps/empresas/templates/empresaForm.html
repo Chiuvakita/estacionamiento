@@ -4,26 +4,18 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Crear Empresa</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ titulo }}</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
-    <h1>Crear Empresa</h1>
-    <form action="{% url 'crearEmpresa' %}" method="post">
+    <h1>{{ titulo }}</h1>
+    <form method="POST">
         {% csrf_token %}
-        <label for="nombre">Nombre:</label>
-        <input type="text" id="nombre" name="nombre" required><br>
-
-        <label for="telefono">Número telefónico:</label>
-        <input type="tel" id="telefono" name="telefono" required><br>
-
-        <label for="correo">Correo:</label>
-        <input type="email" id="correo" name="correo" required><br>
-
-        <label for="direccion">Dirección:</label>
-        <input type="text" id="direccion" name="direccion" required><br>
-
-        <button class="button button-success" type="submit">Crear Empresa</button>
+        {{ formulario.as_p }}
+        <button class="button button-success" type="submit">
+            {% if titulo == "Editar Empresa" %}Guardar Cambios{% else %}Crear Empresa{% endif %}
+        </button>
         <a class="button" href="{% url 'empresas_listar' %}">Volver</a>
     </form>
 </body>
