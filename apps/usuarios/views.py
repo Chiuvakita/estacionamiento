@@ -1,14 +1,84 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_list_or_404
+from django.contrib.auth import authenticate, login, logout
+from django.conf import settings
 from django.contrib import messages
 from .models import Usuario
-from .forms.usuarios import UsuarioForm
+from .forms.usuarios import UsuarioForm, RegistroClienteForm
+from apps.utils.decoradores import loginRequerido, sinLogin, soloAdminEmpleado
 
+
+@loginRequerido
+def homeCliente(request):
+
+    if hasattr(request.user, 'username') and request.user.username.isdigit():
+        rut = int(request.user.username)
+        try:
+            usuario = Usuario.objects.get(rut=rut)
+            if usuario.rol == 'Cliente':
+                return render(request, 'homeCliente.html')
+        except Usuario.DoesNotExist:
+            pass
+    return redirect('login')
+
+@loginRequerido
+@soloAdminEmpleado
+def homeAdmin(request):
+    return render(request, 'homeAdmin.html')
+
+@sinLogin
+def loginView(request):
+    if request.method == "POST":
+        username = request.POST.get("username")
+        password = request.POST.get("clave")
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None:
+            login(request, user)
+            return redirect("/estacionamientos/")
+        else:
+            messages.error(request, 'Usuario o contraseña incorrectos.')
+
+    return render(request, "login.html")
+
+def logoutView(request):
+    logout(request)
+    messages.success(request, 'Sesión cerrada')
+    return redirect("/login")
+
+
+@sinLogin
+def registroView(request):
+
+    if request.method == "POST":
+        formulario = RegistroClienteForm(request.POST)
+        if formulario.is_valid():
+            try:
+                from django.contrib.auth.models import User
+                usuario = formulario.save()
+
+                User.objects.create_user(username=str(usuario.rut), password=formulario.cleaned_data['clave'])
+                messages.success(request, f'¡Registro exitoso! Bienvenido {usuario.nombre} {usuario.apellidoPaterno}. Ya puedes iniciar sesión.')
+                return redirect("login")
+            except Exception as excepcion:
+                messages.error(request, f'Error al registrar usuario: {str(excepcion)}')
+        else:
+            messages.error(request, 'Por favor corrige los errores del formulario.')
+    else:
+        formulario = RegistroClienteForm()
+    
+    return render(request, "registro.html", {"form": formulario})
+
+
+@loginRequerido
+@soloAdminEmpleado
 def crearUsuarios(request):
     if request.method == "POST":
         formulario = UsuarioForm(request.POST)
         if formulario.is_valid():
             try:
-                usuario = formulario.save()
+                usuario = formulario.save(commit=False)
+                usuario.setClave(formulario.cleaned_data['clave'])
+                usuario.save()
                 messages.success(request, f'Usuario {usuario.nombre} {usuario.apellidoPaterno} creado exitosamente.')
                 return redirect("listarUsuarios")
             except Exception as excepcion:
@@ -20,10 +90,14 @@ def crearUsuarios(request):
     
     return render(request, "crear.html", {"form": formulario})
 
+@loginRequerido
+@soloAdminEmpleado
 def listarUsuarios(request):
     usuariosList = Usuario.objects.all()
     return render(request, "listar.html", {"usuarios": usuariosList})
 
+@loginRequerido
+@soloAdminEmpleado
 def editarUsuario(request, rut):
     try:
         usuario = Usuario.objects.get(rut=rut)
@@ -35,7 +109,10 @@ def editarUsuario(request, rut):
         formulario = UsuarioForm(request.POST, instance=usuario, rutReadonly=True)
         if formulario.is_valid():
             try:
-                usuarioActualizado = formulario.save()
+                usuarioActualizado = formulario.save(commit=False)
+                if formulario.cleaned_data['clave']:
+                    usuarioActualizado.setClave(formulario.cleaned_data['clave'])
+                usuarioActualizado.save()
                 messages.success(request, f'Usuario {usuarioActualizado.nombre} {usuarioActualizado.apellidoPaterno} actualizado exitosamente.')
                 return redirect("listarUsuarios")
             except Exception as excepcion:
@@ -47,6 +124,8 @@ def editarUsuario(request, rut):
     
     return render(request, "editar.html", {"form": formulario, "usuario": usuario})
 
+@loginRequerido
+@soloAdminEmpleado
 def eliminarUsuario(request, rut):
     try:
         usuario = Usuario.objects.get(rut=rut)

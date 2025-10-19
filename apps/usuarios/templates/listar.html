@@ -1,16 +1,11 @@
+{% include 'navbarAdmin.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Usuarios</title>
-    <link rel="stylesheet" href="{% static 'css/listar.css' %}">
-</head>
-<body>
-    <main>
-        <section class="container">
-            <h1>Usuarios</h1>
+<main>
+    <h1>Usuarios</h1>
+    
+    <div class="card">
+        <a href="/usuarios/crear/" class="button">Crear Usuario</a>
+    </div>
             <table>
                 <thead>
                     <tr>
@@ -33,16 +28,12 @@
                         <td>{{ usuario.rol }}</td>
                         <td>{% if usuario.discapacidad %}Sí{% else %}No{% endif %}</td> 
                         <td>
-                            <a href="{% url 'editarUsuario' usuario.rut %}">Editar</a>
-                            <a href="/usuarios/eliminar/{{ usuario.rut }}" class="eliminar">Eliminar</a>
+                            <a href="{% url 'editarUsuario' usuario.rut %}" class="button">Editar</a>
+                            <a href="/usuarios/eliminar/{{ usuario.rut }}" class="button button-danger eliminar">Eliminar</a>
                         </td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
-            <a href="/usuarios/crear/" class="crear-usuario">Crear</a>
-        </section>
-    </main>
     <script src="{% static 'js/validacionUsuario.js' %}"></script>
-</body>
-</html>
+</main>

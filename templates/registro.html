@@ -1,7 +1,27 @@
-{% include 'navbarAdmin.html' %}
 {% load static %}
-<main>
-  <h1>Crear Usuario</h1> 
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registro de Cliente</title>
+  <link rel="stylesheet" href="{% static 'css/registro.css' %}">
+</head>
+<body>
+  <main>
+    <div class="card">
+      <h1>Registro de Cliente</h1>
+      
+      {% if messages %}
+        <div class="messages">
+          {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    
     <form method="post" class="usuario-form">
       {% csrf_token %}
       
@@ -17,16 +37,8 @@
         <label for="{{ form.rut.id_for_label }}">{{ form.rut.label }}:</label>
         {{ form.rut }}
         {% if form.rut.help_text %}
-          <script>
-            document.addEventListener('DOMContentLoaded', function() {
-              var rutInput = document.getElementById('{{ form.rut.id_for_label }}');
-              if (rutInput) {
-          rutInput.placeholder = "{{ form.rut.help_text|escapejs }}";
-              }
-            });
-          </script>
+          <small class="form-help">{{ form.rut.help_text }}</small>
         {% endif %}
-
         {% if form.rut.errors %}
           <div class="field-errors">
             {% for error in form.rut.errors %}
@@ -84,21 +96,12 @@
         {% endif %}
       </div>
       
-      <div class="form-group">
-        <label for="{{ form.rol.id_for_label }}">{{ form.rol.label }}:</label>
-        {{ form.rol }}
-        {% if form.rol.errors %}
-          <div class="field-errors">
-            {% for error in form.rol.errors %}
-              <span class="error">{{ error }}</span>
-            {% endfor %}
-          </div>
-        {% endif %}
-      </div>
-      
       <div class="form-group checkbox-group">
         {{ form.discapacidad }}
         <label for="{{ form.discapacidad.id_for_label }}">{{ form.discapacidad.label }}</label>
+        {% if form.discapacidad.help_text %}
+          <small class="form-help">{{ form.discapacidad.help_text }}</small>
+        {% endif %}
         {% if form.discapacidad.errors %}
           <div class="field-errors">
             {% for error in form.discapacidad.errors %}
@@ -139,8 +142,11 @@
       </div>
       
       <div class="form-actions">
-        <button type="submit" class="button">Crear Usuario</button>
-        <a href="{% url 'listarUsuarios' %}" class="button button-danger">Cancelar</a>
+        <button type="submit" class="button">Registrarse</button>
+        <a href="{% url 'login' %}" class="button button-danger">Ya tengo cuenta</a>
       </div>
     </form>
-</main>
+    </div>
+  </main>
+</body>
+</html>

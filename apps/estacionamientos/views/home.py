@@ -2,7 +2,10 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from ..models.estacionamiento import Estacionamiento
 from .services import ocupar_estacionamiento, liberar_estacionamiento
+from apps.utils.decoradores import loginRequerido, soloAdminEmpleado
 
+@loginRequerido
+@soloAdminEmpleado
 def home(request):
     if request.method == "POST":
         patente = request.POST.get("patente")
@@ -23,17 +26,20 @@ def home(request):
     ocupados = Estacionamiento.objects.filter(estado="O")
     estacionamientos = Estacionamiento.objects.all().order_by("id")
 
-    return render(request, "main/home.html", {
+    return render(request, "homeAdmin.html", {
         "disponibles": disponibles,
         "ocupados": ocupados,
         "estacionamientos": estacionamientos
     })
-
+@loginRequerido
+@soloAdminEmpleado
 def marcarSalida(request, id):
     est = get_object_or_404(Estacionamiento, pk=id)
     liberar_estacionamiento(est)
     return redirect("home")
 
+@loginRequerido
+@soloAdminEmpleado
 def marcarSalidaPatente(request):
     if request.method == "POST":
         patente = request.POST.get("patente")
