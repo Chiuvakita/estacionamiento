@@ -53,7 +53,11 @@ def crearUsuarios(request):
         formulario = UsuarioForm(request.POST)
         if formulario.is_valid():
             try:
-                usuario = formulario.save()
+                # No guardar automáticamente para manejar la contraseña
+                usuario = formulario.save(commit=False)
+                # Usar setClave para hashear la contraseña
+                usuario.setClave(formulario.cleaned_data['clave'])
+                usuario.save()
                 messages.success(request, f'Usuario {usuario.nombre} {usuario.apellidoPaterno} creado exitosamente.')
                 return redirect("listarUsuarios")
             except Exception as excepcion:
@@ -84,7 +88,12 @@ def editarUsuario(request, rut):
         formulario = UsuarioForm(request.POST, instance=usuario, rutReadonly=True)
         if formulario.is_valid():
             try:
-                usuarioActualizado = formulario.save()
+                # No guardar automáticamente para manejar la contraseña
+                usuarioActualizado = formulario.save(commit=False)
+                # Solo actualizar la contraseña si se proporciona una nueva
+                if formulario.cleaned_data['clave']:
+                    usuarioActualizado.setClave(formulario.cleaned_data['clave'])
+                usuarioActualizado.save()
                 messages.success(request, f'Usuario {usuarioActualizado.nombre} {usuarioActualizado.apellidoPaterno} actualizado exitosamente.')
                 return redirect("listarUsuarios")
             except Exception as excepcion:

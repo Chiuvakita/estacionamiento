@@ -77,9 +77,31 @@ class UsuarioForm(forms.ModelForm):
         help_text='Marque si el usuario tiene alguna discapacidad'
     )
     
+    clave = forms.CharField(
+        max_length=130,
+        label='Contraseña',
+        widget=forms.PasswordInput(attrs={
+            'minlength': 6,
+            'placeholder': 'Ingrese la contraseña',
+            'class': 'form-control'
+        }),
+        help_text='Contraseña de al menos 6 caracteres'
+    )
+    
+    confirmar_clave = forms.CharField(
+        max_length=130,
+        label='Confirmar Contraseña',
+        widget=forms.PasswordInput(attrs={
+            'minlength': 6,
+            'placeholder': 'Confirme la contraseña',
+            'class': 'form-control'
+        }),
+        help_text='Repita la contraseña'
+    )
+    
     class Meta:
         model = Usuario
-        fields = ['rut', 'nombre', 'apellidoPaterno', 'apellidoMaterno', 'numeroTelefono', 'rol', 'discapacidad']
+        fields = ['rut', 'nombre', 'apellidoPaterno', 'apellidoMaterno', 'numeroTelefono', 'rol', 'discapacidad', 'clave']
     
     def __init__(self, *args, **kwargs):
         rutReadonly = kwargs.pop('rutReadonly', False)
@@ -112,3 +134,20 @@ class UsuarioForm(forms.ModelForm):
         if apellidoData and len(apellidoData.strip()) < 2:
             raise forms.ValidationError('El apellido materno debe tener al menos 2 caracteres')
         return apellidoData.strip().title()
+    
+    def clean_clave(self):
+        claveData = self.cleaned_data.get('clave')
+        if claveData and len(claveData) < 6:
+            raise forms.ValidationError('La contraseña debe tener al menos 6 caracteres')
+        return claveData
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        clave = cleaned_data.get('clave')
+        confirmar_clave = cleaned_data.get('confirmar_clave')
+        
+        if clave and confirmar_clave:
+            if clave != confirmar_clave:
+                raise forms.ValidationError('Las contraseñas no coinciden')
+        
+        return cleaned_data

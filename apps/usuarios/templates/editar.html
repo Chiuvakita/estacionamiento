@@ -1,15 +1,7 @@
+{% include 'navbarAdmin.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Editar Usuario</title>
-  <link rel="stylesheet" href="{% static 'css/formulario.css' %}">
-</head>
-<body>
-  <div class="container">
-    <h1>Editar Usuario - {{ usuario.nombre }} {{ usuario.apellidoPaterno }}</h1>
+<main>
+  <h1>Editar Usuario - {{ usuario.nombre }} {{ usuario.apellidoPaterno }}</h1>
     
     <form method="post" class="usuario-form">
       {% csrf_token %}
@@ -99,10 +91,8 @@
       </div>
       
       <div class="form-actions">
-        <button type="submit" class="btn btn-secondary">Guardar Cambios</button>
-        <a href="{% url 'listarUsuarios' %}" class="btn btn-cancelar">Cancelar</a>
+        <button type="submit" class="button">Guardar Cambios</button>
+        <a href="{% url 'listarUsuarios' %}" class="button button-danger">Cancelar</a>
       </div>
     </form>
-  </div>
-</body>
-</html>
+</main>
