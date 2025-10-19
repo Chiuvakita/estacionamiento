@@ -138,3 +138,6 @@ def eliminarUsuario(request, rut):
         messages.error(request, f'Error al eliminar usuario: {str(excepcion)}')
     
     return redirect("listarUsuarios")
+
+from django.contrib.auth.models import User
+
