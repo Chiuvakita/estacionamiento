@@ -4,7 +4,9 @@ from django.utils import timezone
 from ..models.estacionamiento import Estacionamiento
 from ..forms.reservas import ReservaCrearForm, Reserva
 from .services import ocupar_estacionamiento, liberar_estacionamiento, existe_reserva_activa_o_programada
+from apps.utils.decoradores import loginRequerido
 
+@loginRequerido
 def listarReserva(request):
     data = []
     ahora = timezone.now()
@@ -35,6 +37,7 @@ def listarReserva(request):
 
     return render(request, "reserva/reservaListar.html", {"reservas": data})
 
+@loginRequerido
 def crearReserva(request):
     if request.method == "POST":
         form = ReservaCrearForm(request.POST)
@@ -74,6 +77,7 @@ def crearReserva(request):
         "estacionamientos": est_disponibles
     })
 
+@loginRequerido
 def terminarReserva(request, id):
     r = get_object_or_404(Reserva, pk=id)
     liberar_estacionamiento(r.estacionamiento)

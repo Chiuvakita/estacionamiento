@@ -1,8 +1,10 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from apps.empresas.models import Empresa,Sucursal
-
+from apps.utils.decoradores import loginRequerido, soloAdminEmpleado
 # Create your views here.
+@loginRequerido
+@soloAdminEmpleado
 def listar_empresas(request):
     return render(request, "empresaListar.html")
       
@@ -19,12 +21,13 @@ def crearEmpresa(request, empresa=None):
         return render(request,"empresaCreada.html",{"empresa": empresa}) #Y se retorna la página de empresa creada, incluyendo la empresa como objeto
     return render(request, "empresaForm.html") #Si es GET, se muestra el formulario
     
-# Realizar listarEmpresa
+@loginRequerido
+@soloAdminEmpleado
 def listarEmpresa(request):
     empresas = Empresa.objects.all() #Se obtienen todas las empresas
     return render(request, "empresaListar.html", {"empresas": empresas}) #Y se pasan a la plantilla como lista de objetos
-
-# Realizar editarEmpresa
+@loginRequerido
+@soloAdminEmpleado
 def editarEmpresa(request, empresa_id):
     empresa = Empresa.objects.get(id=empresa_id)  # Se obtiene la empresa a editar por su id
     if request.method == "POST":
@@ -35,8 +38,8 @@ def editarEmpresa(request, empresa_id):
         empresa.save()
         return render(request, "empresaEditar.html", {"empresa": empresa})  # Redirige al formulario de edición con los datos actualizados
     return render(request, "empresaEditar.html", {"empresa": empresa})  # Si es GET, muestra el formulario de edición con los datos actuales
-
-# Realizar eliminarEmpresa
+@loginRequerido
+@soloAdminEmpleado
 def eliminarEmpresa(request, empresa_id):
     empresa = Empresa.objects.get(id=empresa_id)  # Se obtiene la empresa que se va a eliminar
     if request.method == "POST":
