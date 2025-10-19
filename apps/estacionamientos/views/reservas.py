@@ -2,6 +2,7 @@ from datetime import timedelta
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from ..models.estacionamiento import Estacionamiento
+from apps.vehiculos.models import Vehiculo
 from ..forms.reservas import ReservaCrearForm, Reserva
 from .services import ocupar_estacionamiento, liberar_estacionamiento, existe_reserva_activa_o_programada
 from apps.utils.decoradores import loginRequerido
@@ -11,7 +12,7 @@ def listarReserva(request):
     data = []
     ahora = timezone.now()
 
-    for r in Reserva.objects.select_related("estacionamiento").order_by("-id"):
+    for r in Reserva.objects.order_by("-id"):
         duracion = 0
         if r.fecha_inicio and r.fecha_termino:
             duracion = (r.fecha_termino - r.fecha_inicio).total_seconds() / 3600
@@ -36,13 +37,14 @@ def listarReserva(request):
         })
 
     return render(request, "reserva/reservaListar.html", {"reservas": data})
-
 @loginRequerido
 def crearReserva(request):
+    error = None
+
     if request.method == "POST":
         form = ReservaCrearForm(request.POST)
         if form.is_valid():
-            patente = form.cleaned_data["patente"]
+            vehiculo = form.cleaned_data["vehiculo"]
             fecha_inicio = form.cleaned_data["fecha_inicio"]
             duracion_horas = form.cleaned_data["duracion"]
             fecha_termino = fecha_inicio + timedelta(hours=duracion_horas)
@@ -51,36 +53,39 @@ def crearReserva(request):
             est = Estacionamiento.objects.filter(pk=est_id).first()
 
             if existe_reserva_activa_o_programada():
-                return render(request, "reserva/crearReserva.html", {
-                    "form": form,
-                    "estacionamientos": Estacionamiento.objects.filter(estado="D"),
-                    "error": "Ya existe una reserva activa o programada. Debe finalizar antes de crear otra."
-                })
-
-            if est and est.estado == "D":
+                error = "Ya existe una reserva activa o programada. Finalízala antes de crear otra."
+            elif est and est.estado == "D":
                 Reserva.objects.create(
-                    estacionamiento=est,
-                    patente=patente,
+                    estacionamiento_id=est.id,
+                    patente=vehiculo.patente,  
                     fecha_inicio=fecha_inicio,
-                    fecha_termino=fecha_termino,
-                    tipo_snapshot=est.tipo,
+                    fecha_termino=fecha_termino
                 )
-                ocupar_estacionamiento(est, patente, fecha_inicio, fecha_termino, es_reserva=True)
-
-            return redirect("listarReserva")
+                ocupar_estacionamiento(est, vehiculo.patente, fecha_inicio, fecha_termino, es_reserva=True)
+                return redirect("listarReserva")
+            else:
+                error = "El estacionamiento no está disponible."
     else:
         form = ReservaCrearForm()
 
     est_disponibles = Estacionamiento.objects.filter(estado="D").order_by("id")
+
     return render(request, "reserva/crearReserva.html", {
         "form": form,
-        "estacionamientos": est_disponibles
+        "estacionamientos": est_disponibles,
+        "error": error
     })
 
 @loginRequerido
 def terminarReserva(request, id):
     r = get_object_or_404(Reserva, pk=id)
-    liberar_estacionamiento(r.estacionamiento)
+
+    est = Estacionamiento.objects.filter(id=r.estacionamiento_id).first()
+
+    if est:
+        liberar_estacionamiento(est)
+
     r.fecha_termino = timezone.now()
     r.save()
+
     return redirect("listarReserva")
