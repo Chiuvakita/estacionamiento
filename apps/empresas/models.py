@@ -7,7 +7,7 @@ from django.db import models
 
 class Empresa(models.Model):
     nombre = models.CharField(max_length=300)
-    telefono = models.CharField(max_length=30)
+    telefono = models.CharField(max_length=45)
     correo = models.EmailField(max_length=254)
     direccion = models.CharField(max_length=300)
     
