@@ -5,7 +5,6 @@ from apps.empresas.models import Empresa,Sucursal
 from apps.utils.decoradores import loginRequerido, soloAdminEmpleado
 
 
-# Realizar crearEmpresa
 @loginRequerido
 @soloAdminEmpleado
 def gestionarEmpresa(request, empresa_id=None):#funcion para crear y editar empresa
@@ -44,17 +43,15 @@ def eliminarEmpresa(request, empresa_id):
     return HttpResponse("Método erróneo")  # Si no es POST, retorna un error
     
     
-# Realizar listarSucursal
 @loginRequerido
 @soloAdminEmpleado
-def listarSucursal(request):
-    sucursales = Sucursal.objects.all() #Se obtienen todas las sucursales
-    return render(request, "sucursalListar.html", {"sucursales": sucursales}) #Y se pasan a la plantilla como lista de objetos
+def listarSucursal(request, empresa_id):
+    sucursales = Sucursal.objects.filter(empresa_id=empresa_id) #Se obtienen todas las sucursales
+    return render(request, "sucursalListar.html", {"sucursales": sucursales, "empresa_id": empresa_id}) #Y se pasan a la plantilla como lista de objetos
 
-# Realizar gestionarSucursal
 @loginRequerido
 @soloAdminEmpleado
-def gestionarSucursal(request, sucursal_id=None):#funcion para crear y editar sucursal
+def gestionarSucursal(request, empresa_id, sucursal_id=None):#funcion para crear y editar sucursal
     
     if sucursal_id:  # Si se proporciona un ID de sucursal, estamos editando una sucursal existente
         sucursal = Sucursal.objects.get(id=sucursal_id)
@@ -64,22 +61,23 @@ def gestionarSucursal(request, sucursal_id=None):#funcion para crear y editar su
     if request.method == "POST": #Si el metodo es POST
         formulario = forms.SucursalForm(request.POST, instance=sucursal) #Se crea el formulario con los datos del POST y la instancia de sucursal
         if formulario.is_valid(): #Si el formulario es valido
-            formulario.save() #Se guarda el formulario
-            return redirect("listarSucursal") #Se redirige a la lista de sucursales
+            nuevaSucursal = formulario.save(commit=False) #Se crea el formulario, pero no se guarda
+            nuevaSucursal.empresa_id = empresa_id
+            nuevaSucursal.save() #Se guarda el formulario
+            return redirect("sucursales_listar", empresa_id=empresa_id) #Se redirige a la lista de sucursales
     else:
         formulario = forms.SucursalForm(instance=sucursal) ## Si es edición, formulario con datos; si es creación, formulario vacío
         
     titulo = "Editar Sucursal" if sucursal_id else "Crear Sucursal"
 
-    datos = {'formulario': formulario, 'titulo': titulo} #Se crea un diccionario con el formulario y el título
+    datos = {'formulario': formulario, 'titulo': titulo, "empresa_id": empresa_id} #Se crea un diccionario con el formulario y el título
     return render(request, "sucursalForm.html", datos) #Se renderiza con el diccionario
 
-# Realizar eliminarSucursal
 @loginRequerido
 @soloAdminEmpleado
-def eliminarSucursal(request, sucursal_id):
+def eliminarSucursal(request, empresa_id, sucursal_id):
     sucursal = Sucursal.objects.get(id=sucursal_id)  # Se obtiene la sucursal que se va a eliminar
     if request.method == "POST":
         sucursal.delete()  # Se elimina la sucursal
-        return redirect("listarSucursal")  # Llama a la vista de listarSucursal para recargar la página
+        return redirect("sucursales_listar", empresa_id=empresa_id)  # Llama a la vista de listarSucursal para recargar la página
     return HttpResponse("Método erróneo")  # Si no es POST, retorna un error

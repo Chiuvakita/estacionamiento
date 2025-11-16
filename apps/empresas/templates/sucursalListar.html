@@ -9,41 +9,65 @@
 </head>
 <body>
     <div class="actions" style="margin: 10px 0;">
-        <a class="button" href="{% url 'home' %}">Inicio</a>
-        <a class="button" href="{% url 'crearSucursal' %}">Crear nueva sucursal</a>
+        <a class="button" href="{% url 'empresas_listar' %}">Volver</a>
+        <a class="button" href="{% url 'sucursales_crear' empresa_id %}">Crear nueva sucursal</a>
     </div>
     <h1>Listado de Sucursales</h1>
     <table>
         <thead>
             <tr>
-                <th>ID</th>
                 <th>Nombre</th>
-                <th>Dirección</th>
-                <th>Número</th>
-                <th>Acciones</th>
-                <th>Cantidad de Estacionamientos</th>
             </tr>
         </thead>
         <tbody>
             {% for sucursal in sucursales %}
-            <tr>
-                <td>{{ sucursal.id }}</td>
-                <td>{{ sucursal.nombreSucursal }}</td>
-                <td>{{ sucursal.direccion }}</td>
-                <td>{{ sucursal.numero }}</td>
-                <td>{{ sucursal.cantidadEstacionamiento }}</td>
+            <tr class="accordion-header" data-id="{{ sucursal.id }}" style="cursor:pointer;">
+                <td style="display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <span class="arrow" id="arrow-{{ sucursal.id }}">▶</span>
+                        <strong>{{ sucursal.nombreSucursal }}</strong>
+                    </div>
+
+                    <div style="display:flex; gap:10px;">
+                        <form action="{% url 'sucursales_eliminar' empresa_id sucursal.id %}" method="POST">
+                            {% csrf_token %}
+                            <button class="button button-danger" type="submit"
+                                onclick="return confirm('¿Eliminar sucursal?');">
+                                Eliminar
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+
+            <tr class="accordion-content" id="content-{{ sucursal.id }}" style="display:none;">
                 <td>
-                    <a href="{% url 'editarSucursal' sucursal.id %}">Editar</a>
-                    <form action="{% url 'eliminarSucursal' sucursal.id %}" method="POST" style="display:inline;">
-                        {% csrf_token %}
-                        <button type="submit"
-                                onclick="return confirm('¿Está seguro de que desea eliminar esta sucursal?');">
-                            Eliminar
-                        </button>
+                    <p><strong>Dirección:</strong> {{ sucursal.direccion }}</p>
+                    <p><strong>Número:</strong> {{ sucursal.numero }}</p>
+                    <p><strong>Cantidad Estacionamientos:</strong> {{ sucursal.cantidadEstacionamiento }}</p>
+
+                    <div style="margin-top:10px;">
+                        <a class="button" href="{% url 'sucursales_editar' empresa_id sucursal.id %}">Editar</a>
+                    </div>
                 </td>
             </tr>
             {% endfor %}
         </tbody>
+
     </table>
 </body>
 </html>
+
+<script>
+document.querySelectorAll(".accordion-header").forEach(header => {
+    header.addEventListener("click", () => {
+        const id = header.getAttribute("data-id");
+        const content = document.getElementById(`content-${id}`);
+        const arrow = document.getElementById(`arrow-${id}`);
+
+        const isVisible = content.style.display === "table-row";
+        content.style.display = isVisible ? "none" : "table-row";
+        arrow.textContent = isVisible ? "▶" : "▼";
+    });
+});
+</script>

@@ -10,7 +10,7 @@
 </head>
 <body>
     <div class="actions" style="margin: 10px 0;">
-        <a class="button" href="{% url 'crearEmpresa' %}">Crear nueva empresa</a>
+        <a class="button" href="{% url 'empresas_crear' %}">Crear nueva empresa</a>
     </div>
 
     <h1>Listado de Empresas</h1>
@@ -19,33 +19,54 @@
         <thead>
             <tr>
                 <th>Nombre</th>
-                <th>Teléfono</th>
-                <th>Correo</th>
-                <th>Dirección</th>
-                <th>Acción</th>
             </tr>
         </thead>
         <tbody>
             {% for empresa in empresas %}
-            <tr>
-                <td>{{ empresa.nombre }}</td>
-                <td>{{ empresa.telefono }}</td>
-                <td>{{ empresa.correo }}</td>
-                <td>{{ empresa.direccion }}</td>
+            <tr class="accordion-header" data-id="{{ empresa.id }}" style="cursor:pointer;">
+                <td style="display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <span class="arrow" id="arrow-{{ empresa.id }}">▶</span>
+                        <strong>{{ empresa.nombre }}</strong>
+                    </div>
+
+                    <a class="button" href="{% url 'sucursales_listar' empresa.id %}">Ver Sucursales</a>
+                </td>
+            </tr>
+
+            <tr class="accordion-content" id="content-{{ empresa.id }}" style="display:none;">
                 <td>
-                    <a class="button" href="{% url 'editarEmpresa' empresa.id %}">Editar</a>
-                    <br>
-                    <form action="{% url 'eliminarEmpresa' empresa.id %}" method="POST" style="display:inline;">
-                        {% csrf_token %}
-                        <button class="button button-danger" type="submit"
-                                onclick="return confirm('¿Está seguro de que desea eliminar esta empresa?');">
-                            Eliminar
-                        </button>
-                    </form>
+                    <p><strong>Teléfono:</strong> {{ empresa.telefono }}</p>
+                    <p><strong>Correo:</strong> {{ empresa.correo }}</p>
+                    <p><strong>Dirección:</strong> {{ empresa.direccion }}</p>
+
+                    <div style="display:flex; gap:10px;">
+                        <a class="button" href="{% url 'empresas_editar' empresa.id %}">Editar</a>
+                        <form action="{% url 'empresas_eliminar' empresa.id %}" method="POST">
+                            {% csrf_token %}
+                            <button class="button button-danger" type="submit"
+                                onclick="return confirm('¿Eliminar empresa?');">Eliminar</button>
+                        </form>
+                    </div>
                 </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 </body>
+
+<script>
+document.querySelectorAll(".accordion-header").forEach(header => {
+    header.addEventListener("click", () => {
+        const id = header.getAttribute("data-id");
+        const content = document.getElementById(`content-${id}`);
+        const arrow = document.getElementById(`arrow-${id}`);
+
+        const isVisible = content.style.display === "table-row";
+        content.style.display = isVisible ? "none" : "table-row";
+        arrow.textContent = isVisible ? "▶" : "▼";
+    });
+});
+</script>
+
 </html>

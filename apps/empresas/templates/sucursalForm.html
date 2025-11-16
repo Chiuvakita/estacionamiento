@@ -12,8 +12,34 @@
     <form method="post">
         {% csrf_token %}
         {{ formulario.as_p }}
-        <button type="submit">Guardar</button>
+        <button type="submit" onclick="return validarFormulario();">Guardar</button>
     </form>
-    <a href="{% url 'listarSucursal' %}">Cancelar</a>
+    <a class="button" href="{% url 'sucursales_listar' empresa_id %}">Cancelar</a>
 </body>
+
+<script>
+function validarFormulario() {
+
+    const cantidadEstacionamiento = document.getElementById("id_cantidadEstacionamiento");
+    const regexEst = /^[1-9]\d*$/;
+
+    const numero = document.getElementById("id_numero"); //Campo teléfono, generado automáticamente por Django
+    const regexTel = /^\+569\d{8}$/;
+
+    if (cantidadEstacionamiento && !regexEst.test(cantidadEstacionamiento.value)) { //Valida que el número sea positivo
+        alert("La cantidad de estacionamiento debe ser un número positivo");
+        cantidadEstacionamiento.focus(); //Coloca el cursor en el campo
+        return false;
+    }
+
+    if (numero && !regexTel.test(numero.value)) { //Valida que el teléfono tenga el formato correcto
+        alert("El número debe ser válido, ejemplo: +569XXXXXXXX");
+        numero.focus();
+        return false;
+    }
+
+    return true;
+}
+</script>
+
 </html>
