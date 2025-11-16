@@ -1,48 +1,48 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Vehiculo
 from .forms import VehiculoForm
-from apps.utils.decoradores import loginRequerido, soloCliente
-@loginRequerido
-@soloCliente
-def listarVehiculos(request):
-    vehiculos = Vehiculo.objects.all()
-    return render(request, 'vehiculos/listar.html', {'vehiculos': vehiculos})
+from apps.utils.decoradores import loginRequerido  
 
-def crearVehiculo(request):
-    error = None
-    form = VehiculoForm(request.POST or None)
+@loginRequerido
+def listar(request):
+    vehiculos = Vehiculo.objects.all().order_by("patente")
+    return render(request, "vehiculos/listar.html", {"vehiculos": vehiculos})
+
+@loginRequerido
+def crear(request):
+    if request.method == "POST":
+        form = VehiculoForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect("listarVehiculos")   
+    else:
+        form = VehiculoForm()
+    return render(request, "vehiculos/crear.html", {"form": form})
+
+@loginRequerido
+def editar(request, id):
+    vehiculo = get_object_or_404(Vehiculo, pk=id)
 
     if request.method == "POST":
-        # Limitar a 3 vehículos
-        if Vehiculo.objects.count() >= 3:
-            error = "Solo puedes registrar un máximo de 3 vehículos."
-        elif form.is_valid():
-            try:
-                form.save()
-                return redirect('listarVehiculos')
-            except:
-                error = "Ya existe un vehículo con esa patente."
+        form = VehiculoForm(request.POST, instance=vehiculo)
+        if form.is_valid():
+            form.save()
+            return redirect("listarVehiculos")   
+    else:
+        form = VehiculoForm(instance=vehiculo)
 
-    return render(request, 'vehiculos/crear.html', {'form': form, 'error': error})
-
-@loginRequerido
-@soloCliente
-def editarVehiculo(request, id):
-    vehiculo = get_object_or_404(Vehiculo, id=id)
-    form = VehiculoForm(request.POST or None, instance=vehiculo)
-    if form.is_valid():
-        form.save()
-        return redirect('listarVehiculos')
-    return render(request, 'vehiculos/editar.html', {'form': form})
+    return render(request, "vehiculos/editar.html", {
+        "form": form,
+        "vehiculo": vehiculo
+    })
 
 @loginRequerido
-@soloCliente
-def eliminarVehiculo(request, id):
-    vehiculo = get_object_or_404(Vehiculo, id=id)
+def eliminar(request, id):
+    vehiculo = get_object_or_404(Vehiculo, pk=id)
     vehiculo.delete()
-    return redirect('listarVehiculos')
+    return redirect("listarVehiculos")   
+
 @loginRequerido
-@soloCliente
-def eliminarTodosVehiculos(request):
+def eliminar_todos(request):
     Vehiculo.objects.all().delete()
-    return redirect('listarVehiculos')
+    return redirect("listarVehiculos")  

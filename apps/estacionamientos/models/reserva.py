@@ -1,9 +1,12 @@
 from django.db import models
 from django.utils import timezone
+from apps.estacionamientos.models.estacionamiento import Estacionamiento
+from apps.vehiculos.models import Vehiculo
 
 class Reserva(models.Model):
-    estacionamiento_id = models.IntegerField()  
-    patente = models.CharField(max_length=20, default="DESCONOCIDA")
+    estacionamiento = models.ForeignKey(Estacionamiento, on_delete=models.CASCADE)
+    vehiculo = models.ForeignKey(Vehiculo, on_delete=models.CASCADE)
+
     fecha_inicio = models.DateTimeField(default=timezone.now)
     fecha_termino = models.DateTimeField(null=True, blank=True)
     tipo_snapshot = models.CharField(max_length=20, default="Normal")
@@ -25,4 +28,4 @@ class Reserva(models.Model):
         return "Finalizada"
 
     def __str__(self):
-        return f"Reserva {self.pk} • {self.patente}"
+        return f"Reserva {self.pk} • {self.vehiculo.patente}"

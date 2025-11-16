@@ -5,6 +5,14 @@
 <h1>Crear Reserva</h1>
 <div class="card">
 
+  {% if form.non_field_errors %}
+    <div style="color: red; font-weight: bold; margin-bottom: 15px;">
+      {% for error in form.non_field_errors %}
+        {{ error }}<br>
+      {% endfor %}
+    </div>
+  {% endif %}
+
   {% if error %}
     <div style="color: red; font-weight: bold; margin-bottom: 15px;">
       {{ error }}
@@ -17,19 +25,13 @@
     {{ form.vehiculo.label_tag }} {{ form.vehiculo }}
     <br>
 
-    {{ form.fecha_inicio.label_tag }}
-    <input type="datetime-local" name="fecha_inicio" required>
+    {{ form.fecha_inicio.label_tag }} {{ form.fecha_inicio }}
     <br>
 
     {{ form.duracion.label_tag }} {{ form.duracion }}
     <br>
 
-    <label>Estacionamiento</label>
-    <select name="estacionamiento_id" required>
-      {% for e in estacionamientos %}
-        <option value="{{ e.id }}">#{{ e.id }} - {{ e.tipo }}</option>
-      {% endfor %}
-    </select>
+    {{ form.estacionamiento.label_tag }} {{ form.estacionamiento }}
     <br>
 
     <button class="button">Guardar</button>
@@ -37,10 +39,5 @@
   </form>
 
 </div>
-
-<script src="{% static 'js/validaciones.js' %}"></script>
-<script>
-  document.querySelector("form").addEventListener("submit", validarReserva);
-</script>
 
 {% endblock %}
