@@ -13,10 +13,28 @@
     <form method="POST">
         {% csrf_token %}
         {{ formulario.as_p }}
-        <button class="button button-success" type="submit">
+        <button class="button button-success" type="submit" onclick="return validarFormulario();">
             {% if titulo == "Editar Empresa" %}Guardar Cambios{% else %}Crear Empresa{% endif %}
         </button>
         <a class="button" href="{% url 'empresas_listar' %}">Volver</a>
     </form>
 </body>
+
+<script>
+function validarFormulario() {
+
+    const telefono = document.getElementById("id_telefono"); //Django genera el id automáticamente
+    const regexTel = /^\+569\d{8}$/;
+
+
+    if (telefono && !regexTel.test(telefono.value)) { //Valida que el telefono tenga el formato correcto
+        alert("El número debe ser válido, ejemplo: +569XXXXXXXX");
+        telefono.focus();
+        return false;
+    }
+
+    return true;
+}
+</script>
+
 </html>

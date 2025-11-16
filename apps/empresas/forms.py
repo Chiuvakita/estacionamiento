@@ -10,4 +10,5 @@ class EmpresaForm(forms.ModelForm):
 class SucursalForm(forms.ModelForm):
     class Meta:
         model = Sucursal
+        exclude = ['empresa'] #Como empresa es una clave foranea, no se muestra en el formulario
         fields = '__all__'
