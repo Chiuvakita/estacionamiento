@@ -4,9 +4,7 @@ from .models.reserva import Reserva
 from .models.historial import Historial
 
 
-# ======================================================
-#   ADMIN — ESTACIONAMIENTOS (Crear 1 o muchos)
-# ======================================================
+#   ADMIN — ESTACIONAMIENTOS 
 @admin.register(Estacionamiento)
 class EstacionamientoAdmin(admin.ModelAdmin):
     list_display = ("id", "estado", "tipo", "patente", "fecha_inicio", "fecha_termino")
@@ -22,9 +20,8 @@ class EstacionamientoAdmin(admin.ModelAdmin):
         return True
 
 
-# ======================================================
-#   ADMIN — RESERVAS (Fecha de término SOLO lectura)
-# ======================================================
+
+#   ADMIN — RESERVAS 
 @admin.register(Reserva)
 class ReservaAdmin(admin.ModelAdmin):
     list_display = (
@@ -39,9 +36,7 @@ class ReservaAdmin(admin.ModelAdmin):
     fields = ("vehiculo", "estacionamiento", "fecha_inicio", "fecha_termino", "tipo_snapshot")
 
 
-# ======================================================
-#   ADMIN — HISTORIAL (Solo lectura, no CRUD)
-# ======================================================
+#   ADMIN — HISTORIAL 
 @admin.register(Historial)
 class HistorialAdmin(admin.ModelAdmin):
     list_display = (
