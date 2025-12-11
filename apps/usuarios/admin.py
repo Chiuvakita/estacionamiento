@@ -32,7 +32,7 @@ class UsuarioAdmin(admin.ModelAdmin):
         }),
     )
     
-    def save_model(self, request, obj, form, change):
+    def save_model(self, obj, form, change):
         clave_nueva = form.cleaned_data.get('clave_nueva')
         
         if not change and not clave_nueva:

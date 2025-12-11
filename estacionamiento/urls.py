@@ -19,12 +19,15 @@ from django.urls import path, include
 from django.shortcuts import render, redirect
 from apps.usuarios import views
 from apps.usuarios.models import Usuario
+from rest_framework.routers import DefaultRouter
+from apps.usuarios.api import UsuarioViewSet
+
 
 from apps.usuarios.views import homeCliente, homeAdmin
 
 def home(request):
+
     if request.user.is_authenticated:
-        # Si es cliente
         if hasattr(request.user, 'username') and request.user.username.isdigit():
             
             try:
@@ -34,10 +37,11 @@ def home(request):
                     return homeCliente(request)
             except Usuario.DoesNotExist:
                 pass
-        # Si es admin o empleado
         return homeAdmin(request)
     else:
         return redirect('login')
+router = DefaultRouter()
+router.register(r'usuarios', UsuarioViewSet)
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -51,15 +55,7 @@ urlpatterns = [
     path("vehiculos/", include("apps.vehiculos.urls")),
     path("estacionamientos/", include("apps.estacionamientos.urls")),
 
+    path("api/", include(router.urls)),
+
 ]
 
-
-
-
-
-
-# TODO: Conectar todas las rutas de cada app aquí
-# path("usuarios/", include("apps.usuarios.urls"))
-# path("empresas/", include("apps.empresas.urls"))
-# path("vehiculos/", include("apps.vehiculos.urls"))
-# path("estacionamientos/", include("apps.estacionamientos.urls"))

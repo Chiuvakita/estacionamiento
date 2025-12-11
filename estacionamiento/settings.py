@@ -43,6 +43,11 @@ INSTALLED_APPS = [
     "apps.empresas",
     "apps.vehiculos",
     "apps.estacionamientos",
+
+    "rest_framework",
+    "rest_framework.authtoken",
+
+    "corsheaders",
 ]
 
 MIDDLEWARE = [
@@ -64,7 +69,6 @@ TEMPLATES = [
             os.path.join(BASE_DIR, 'templates'),
             os.path.join(BASE_DIR, 'templates', 'apps', 'usuarios'),],
 
-        # como tenemos dos rutas primero busca en templates base para rederizar el home que esta fuera y despues en el otro template de apps
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -135,3 +139,24 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",  # pa riact
+    "http://localhost:5173",  # pal svel del benja
+]
+
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOW_ALL_ORIGINS =DEBUG
+
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
