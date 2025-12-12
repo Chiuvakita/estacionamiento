@@ -1,48 +1,42 @@
 from datetime import timedelta
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect
 from django.utils import timezone
+from django.contrib import messages
+import requests
 
-from apps.estacionamientos.models.estacionamiento import Estacionamiento
-from apps.estacionamientos.models.reserva import Reserva
 from apps.estacionamientos.forms.reservas import ReservaCrearForm
-from apps.estacionamientos.views.services import (
-    ocupar_estacionamiento,
-    liberar_estacionamiento,
-    existe_reserva_activa_o_programada,
-)
 from apps.utils.decoradores import loginRequerido, soloCliente
+
+API_BASE = "http://localhost:8000/api"
+
+
+def _headers(request):
+    token = request.session.get("tokenApi")
+    if not token:
+        return None
+    return {
+        "Content-Type": "application/json",
+        "Authorization": f"Token {token}",
+    }
 
 
 @loginRequerido
 @soloCliente
 def listarReserva(request):
+    headers = _headers(request)
+    if not headers:
+        messages.error(request, "Token no encontrado. Inicia sesión nuevamente.")
+        return redirect("login")
+
     data = []
-    ahora = timezone.now()
-
-    for r in Reserva.objects.select_related("vehiculo", "estacionamiento").order_by("-id"):
-        if r.fecha_inicio and r.fecha_termino:
-            duracion = (r.fecha_termino - r.fecha_inicio).total_seconds() / 3600
+    try:
+        resp = requests.get(f"{API_BASE}/reservas/", headers=headers)
+        if resp.status_code == 200:
+            data = resp.json()
         else:
-            duracion = 0
-        duracion_str = f"{int(duracion)} horas" if duracion else "-"
-
-        if r.fecha_termino and r.fecha_termino > ahora:
-            diff = r.fecha_termino - ahora
-            horas = diff.seconds // 3600
-            minutos = (diff.seconds % 3600) // 60
-            tiempo_restante = f"{horas}h {minutos}m"
-        else:
-            tiempo_restante = "Finalizada"
-
-        data.append({
-            "id": r.id,
-            "patente": r.vehiculo.patente,
-            "estacionamiento_id": r.estacionamiento.id,
-            "fechaInicio": r.fecha_inicio.strftime("%Y-%m-%d %H:%M"),
-            "fechaTermino": r.fecha_termino.strftime("%Y-%m-%d %H:%M") if r.fecha_termino else "-",
-            "duracion": duracion_str,
-            "tiempoRestante": tiempo_restante,
-        })
+            messages.error(request, "Error al cargar reservas desde la API.")
+    except requests.RequestException as e:
+        messages.error(request, f"Error de conexión con la API: {e}")
 
     return render(request, "reserva/reservaListar.html", {"reservas": data})
 
@@ -51,7 +45,7 @@ def listarReserva(request):
 @soloCliente
 def crearReserva(request):
     error = None
-
+    headers = _headers(request)
     if request.method == "POST":
         form = ReservaCrearForm(request.POST)
         if form.is_valid():
@@ -59,38 +53,40 @@ def crearReserva(request):
             est = form.cleaned_data["estacionamiento"]
             fecha_inicio = form.cleaned_data["fecha_inicio"]
             duracion_horas = form.cleaned_data["duracion"]
-            fecha_termino = fecha_inicio + timedelta(hours=duracion_horas)
 
-            if existe_reserva_activa_o_programada():
-                error = "Ya existe una reserva activa o programada. Finalízala antes de crear otra."
-
-            elif est.estado == "D":
-
-                Reserva.objects.create(
-                    estacionamiento=est,
-                    vehiculo=vehiculo,
-                    fecha_inicio=fecha_inicio,
-                    fecha_termino=fecha_termino,
-                    tipo_snapshot=est.tipo
-                )
-
-                ocupar_estacionamiento(
-                    est=est,
-                    patente=vehiculo.patente,
-                    fecha_inicio=fecha_inicio,
-                    es_reserva=True
-                )
-
-                return redirect("listarReserva")
-            else:
-                error = "El estacionamiento no está disponible."
+            if not headers:
+                messages.error(request, "Token no encontrado. Inicia sesión nuevamente.")
+                return redirect("login")
+            try:
+                payload = {
+                    "vehiculo": vehiculo.id,
+                    "estacionamiento": est.id,
+                    "fechaInicio": fecha_inicio.isoformat(),
+                    "duracionHoras": duracion_horas,
+                }
+                resp = requests.post(f"{API_BASE}/reservas/", json=payload, headers=headers)
+                if resp.status_code in (200, 201):
+                    messages.success(request, "Reserva creada.")
+                    return redirect("listarReserva")
+                errors = resp.json().get("errors") or resp.json()
+                error = errors
+            except requests.RequestException as e:
+                messages.error(request, f"Error de conexión con la API: {e}")
     else:
         form = ReservaCrearForm()
 
     minimo = (timezone.localtime() + timedelta(hours=2)).strftime("%Y-%m-%dT%H:%M")
     form.fields["fecha_inicio"].widget.attrs["min"] = minimo
 
-    est_disponibles = Estacionamiento.objects.filter(estado="D").order_by("id")
+    # estacionamientos disponibles desde API
+    est_disponibles = []
+    if headers:
+        try:
+            resp = requests.get(f"{API_BASE}/estacionamientos/", headers=headers)
+            if resp.status_code == 200:
+                est_disponibles = [e for e in resp.json() if e.get("estado") == "D"]
+        except requests.RequestException:
+            pass
 
     return render(request, "reserva/crearReserva.html", {
         "form": form,
@@ -101,14 +97,16 @@ def crearReserva(request):
 @loginRequerido
 @soloCliente
 def terminarReserva(request, id):
-    r = get_object_or_404(Reserva, pk=id)
-
-    est = r.estacionamiento
-
-    if est:
-        liberar_estacionamiento(est)
-
-    r.fecha_termino = timezone.now()
-    r.save()
-
+    headers = _headers(request)
+    if not headers:
+        messages.error(request, "Token no encontrado. Inicia sesión nuevamente.")
+        return redirect("login")
+    try:
+        resp = requests.post(f"{API_BASE}/reservas/{id}/terminar/", headers=headers)
+        if resp.status_code in (200, 204):
+            messages.success(request, "Reserva finalizada.")
+        else:
+            messages.error(request, f"No se pudo finalizar: {resp.json()}")
+    except requests.RequestException as e:
+        messages.error(request, f"Error de conexión con la API: {e}")
     return redirect("listarReserva")

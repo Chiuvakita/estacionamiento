@@ -1,63 +1,52 @@
 from rest_framework import serializers
-from django.contrib.auth.hashers import make_password
+from django.contrib.auth import authenticate
+from django.contrib.auth.models import User
 from .models import Usuario
 from .forms.usuarios import UsuarioForm, RegistroClienteForm
-from django.contrib.auth.models import User
-from django.contrib.auth import authenticate
-from django.http import HttpRequest
-from .views import crearUsuarios, editarUsuario, registroView
-from django.contrib.auth.models import User
 
 class UsuarioSerializer(serializers.ModelSerializer):
     clave = serializers.CharField(write_only=True, required=False)
 
-    incluirDatosSensibles = serializers.BooleanField(default=False, write_only=True)
-
     class Meta:
         model = Usuario
-        fields = ['rut', 'nombre', 'apellidoPaterno', 'apellidoMaterno', 'numeroTelefono', 'rol', 'discapacidad', 'incluirDatosSensibles']
-        read_only_fields = ('created_at')
+        fields = ['rut', 'nombre', 'apellidoPaterno', 'apellidoMaterno', 'numeroTelefono', 'rol', 'discapacidad', 'clave']
+        read_only_fields = ('created_at',)
 
     def validate(self, datos):
-        formulario = UsuarioForm(data=datos, instance=self.instance)
-        
+        datosValidacion = datos.copy()
+        if 'clave' in datosValidacion:
+            datosValidacion['confirmar_clave'] = datosValidacion['clave']
+            
+        formulario = UsuarioForm(data=datosValidacion, instance=self.instance)
         if not formulario.is_valid():
             raise serializers.ValidationError(formulario.errors)
         return datos
 
-        
     def create(self, datosValidados):
-        requestFalso = HttpRequest()
-        requestFalso.method = 'POST'
-        requestFalso.POST = datosValidados
-        requestFalso.user = None 
-        
-        from django.contrib.auth.models import User
+        clave = datosValidados.pop("clave", "temporal")
+        usuario = Usuario(**datosValidados)
+        usuario.setClave(clave)
+        usuario.save()
         try:
-            usuarioAdmin = User.objects.filter(is_superuser=True).first()
-            if usuarioAdmin:
-                requestFalso.user = usuarioAdmin
-        except:
+            User.objects.create_user(
+                username=str(usuario.rut),
+                password=clave
+            )
+        except Exception:
             pass
+        return usuario
 
     def update(self, instancia, datosValidados):
-        requestFalso = HttpRequest()
-        requestFalso.method = 'POST'
-        requestFalso.POST = datosValidados
-        requestFalso.user = None
+        clave = datosValidados.pop('clave', None)
         
-        # Simular usuario admin
-        try:
-            usuarioAdmin = User.objects.filter(is_superuser=True).first()
-            if usuarioAdmin:
-                requestFalso.user = usuarioAdmin
-        except:
-            pass
-        respuestaOriginal = editarUsuario(requestFalso, instancia.rut)
+        for campo, valor in datosValidados.items():
+            setattr(instancia, campo, valor)
         
-        usuarioActualizado = Usuario.objects.get(rut=instancia.rut)
-        return usuarioActualizado
-
+        if clave:
+            instancia.setClave(clave)
+        
+        instancia.save()
+        return instancia
 
 class RegistroClienteSerializer(serializers.ModelSerializer):
     clave = serializers.CharField(write_only=True, min_length=8)
@@ -82,22 +71,29 @@ class RegistroClienteSerializer(serializers.ModelSerializer):
         return datos
 
     def create(self, datosValidados):
-        requestFalso = HttpRequest()
-        requestFalso.method = 'POST'
-        requestFalso.POST = datosValidados
+        clave = datosValidados.pop('clave')
+        datosValidados.pop('confirmarClave')
         
-        respuestaOriginal = registroView(requestFalso)
+        usuario = Usuario(**datosValidados)
+        usuario.rol = 'Cliente'
+        usuario.setClave(clave)
+        usuario.save()
         
-        usuario = Usuario.objects.get(rut=datosValidados['rut'])
+        try:
+            User.objects.create_user(
+                username=str(usuario.rut),
+                password=clave
+            )
+        except Exception:
+            pass
+            
         return usuario
-
 
 class UsuarioLoginSerializer(serializers.Serializer):
     username = serializers.CharField()
     clave = serializers.CharField()
 
     def validate(self, datos):
-
         username = datos['username']
         password = datos['clave']
         

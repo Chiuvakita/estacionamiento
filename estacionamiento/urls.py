@@ -16,11 +16,12 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect
 from apps.usuarios import views
 from apps.usuarios.models import Usuario
 from rest_framework.routers import DefaultRouter
 from apps.usuarios.api import UsuarioViewSet
+from apps.estacionamientos.api import EstacionamientoViewSet, ReservaViewSet, HistorialViewSet
 
 
 from apps.usuarios.views import homeCliente, homeAdmin
@@ -42,6 +43,9 @@ def home(request):
         return redirect('login')
 router = DefaultRouter()
 router.register(r'usuarios', UsuarioViewSet)
+router.register(r'estacionamientos', EstacionamientoViewSet, basename='api-estacionamientos')
+router.register(r'reservas', ReservaViewSet, basename='api-reservas')
+router.register(r'historial', HistorialViewSet, basename='api-historial')
 
 urlpatterns = [
     path("admin/", admin.site.urls),
