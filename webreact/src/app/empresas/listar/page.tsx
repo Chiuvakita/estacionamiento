@@ -1,32 +1,44 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import NavbarAdmin from "@/components/NavbarAdmin";
-
-interface Empresa {
-  id: number;
-  nombre: string;
-  telefono: string;
-  correo: string;
-  direccion: string;
-}
+import { listarEmpresas, eliminarEmpresa, Empresa } from "@/services/empresas";
 
 export default function EmpresasListarPage() {
-  const [empresas, setEmpresas] = useState<Empresa[]>([
-    // TEMPORAL — se reemplaza cuando llegue el backend
-    {
-      id: 1,
-      nombre: "Empresa Demo",
-      telefono: "+56912345678",
-      correo: "demo@empresa.cl",
-      direccion: "Calle Falsa 123",
-    },
-  ]);
-
+  const [empresas, setEmpresas] = useState<Empresa[]>([]);
   const [open, setOpen] = useState<number | null>(null);
+
+  useEffect(() => {
+    listarEmpresas()
+      .then(setEmpresas)
+      .catch(() => {
+        console.error("Error cargando empresas");
+      });
+  }, []);
 
   const toggle = (id: number) => {
     setOpen(open === id ? null : id);
+  };
+
+  /* 🔥 ELIMINAR */
+  const handleDelete = async (id: number) => {
+    const confirmar = confirm(
+      "¿Estás seguro de eliminar esta empresa?\nSe eliminarán también sus sucursales."
+    );
+
+    if (!confirmar) return;
+
+    try {
+      await eliminarEmpresa(id);
+
+      // quitar del estado sin recargar
+      setEmpresas((prev) => prev.filter((e) => e.id !== id));
+
+      if (open === id) setOpen(null);
+    } catch (error) {
+      alert("Error al eliminar empresa");
+      console.error(error);
+    }
   };
 
   return (
@@ -68,20 +80,13 @@ export default function EmpresasListarPage() {
                 >
                   Ver Sucursales
                 </Link>
-
               </button>
 
               {open === empresa.id && (
                 <div className="mt-3 border-t border-[var(--bg-alt)] pt-3">
-                  <p>
-                    <strong>Teléfono:</strong> {empresa.telefono}
-                  </p>
-                  <p>
-                    <strong>Correo:</strong> {empresa.correo}
-                  </p>
-                  <p>
-                    <strong>Dirección:</strong> {empresa.direccion}
-                  </p>
+                  <p><strong>Teléfono:</strong> {empresa.telefono}</p>
+                  <p><strong>Correo:</strong> {empresa.correo}</p>
+                  <p><strong>Dirección:</strong> {empresa.direccion}</p>
 
                   <div className="flex gap-3 mt-3">
                     <Link
@@ -91,7 +96,10 @@ export default function EmpresasListarPage() {
                       Editar
                     </Link>
 
-                    <button className="px-3 py-2 rounded bg-[var(--danger)] hover:bg-[var(--danger-dark)]">
+                    <button
+                      onClick={() => handleDelete(empresa.id)}
+                      className="px-3 py-2 rounded bg-[var(--danger)] hover:bg-[var(--danger-dark)]"
+                    >
                       Eliminar
                     </button>
                   </div>

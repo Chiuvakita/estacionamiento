@@ -4,35 +4,52 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import NavbarAdmin from "@/components/NavbarAdmin";
 import SucursalForm from "@/components/sucursaleFrom";
+import { obtenerSucursal, actualizarSucursal } from "@/services/sucursales";
+import { useRouter } from "next/navigation";
 
 export default function EditarSucursalPage() {
-  const { empresaID, id } = useParams(); // 👈 OJO: empresaID con ID mayúscula
+  const { empresaID, id } = useParams();
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
-    // Simulación de carga desde API
-    console.log("Cargando sucursal", id, "de empresa", empresaID);
+    if (!id) return;
 
-    setTimeout(() => {
-      setData({
-        nombreSucursal: "Sucursal Centro",
-        direccion: "Av. Principal 123",
-        numero: "+56911112222",
-        cantidadEstacionamiento: 12,
+    setLoading(true);
+
+    obtenerSucursal(Number(id))
+      .then((res) => {
+        setData(res);
+      })
+      .catch((err) => {
+        console.error("Error cargando sucursal", err);
+      })
+      .finally(() => {
+        setLoading(false);
       });
-      setLoading(false);
-    }, 300);
-  }, [empresaID, id]);
+  }, [id]);
 
-  const handleUpdate = (formData: any) => {
-    console.log("Actualizar sucursal", id, "de empresa", empresaID, formData);
 
-    // Más adelante:
-    // axios.put(`/api/empresas/${empresaID}/sucursales/${id}/`, formData);
+  const handleUpdate = async (formData: any) => {
+    try {
+      await actualizarSucursal(Number(id), {
+        ...formData,
+        empresa: Number(empresaID),
+      });
 
-    alert("Sucursal actualizada (simulación)");
+      alert("Sucursal actualizada correctamente");
+
+      // ⬅️ VOLVER AL LISTADO DE SUCURSALES
+      router.push(`/empresas/${empresaID}/sucursales/listar`);
+
+    } catch (error) {
+      console.error("Error actualizando sucursal", error);
+      alert("Error al actualizar la sucursal");
+    }
   };
+
+
 
   if (loading) {
     return (

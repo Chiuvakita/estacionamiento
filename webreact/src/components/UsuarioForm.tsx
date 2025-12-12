@@ -15,7 +15,7 @@ export default function UsuarioForm({ initialData, onSubmit, buttonText, cancelH
       rol: "Cliente",
       discapacidad: false,
       clave: "",
-      confirmar_clave: "",
+      confirmarClave: "",
     }
   );
 
@@ -132,8 +132,8 @@ export default function UsuarioForm({ initialData, onSubmit, buttonText, cancelH
             <input
               type="password"
               className="w-full input-estilo"
-              value={form.confirmar_clave}
-              onChange={(e) => update("confirmar_clave", e.target.value)}
+              value={form.confirmarClave}
+              onChange={(e) => update("confirmarClave", e.target.value)}
             />
           </div>
 

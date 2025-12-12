@@ -3,20 +3,42 @@
 import NavbarAdmin from "@/components/NavbarAdmin";
 import { useState } from "react";
 import Link from "next/link";
+import { crearEstacionamientoMasivo } from "@/services/estacionamientos";
+import { useRouter } from "next/navigation";
 
 export default function CrearMasivoPage() {
-  const [cantidad, setCantidad] = useState("");
-  const [tipo, setTipo] = useState("Auto");
+  const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [cantidad, setCantidad] = useState("");
+  const [tipo, setTipo] = useState<"Normal" | "VIP" | "Discapacitado">("Normal");
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!cantidad || isNaN(Number(cantidad)) || Number(cantidad) <= 0) {
-      alert("La cantidad debe ser un número válido.");
+    const cantidadNum = Number(cantidad);
+
+    if (!cantidad || isNaN(cantidadNum) || cantidadNum <= 0) {
+      alert("La cantidad debe ser un número mayor a 0");
       return;
     }
 
-    alert(`Creando ${cantidad} estacionamientos tipo ${tipo} (simulación)`);
+    setLoading(true);
+
+    try {
+      await crearEstacionamientoMasivo({
+        cantidad: cantidadNum,
+        tipo,
+      });
+
+      alert("Estacionamientos creados correctamente");
+      router.push("/estacionamientos/listar");
+    } catch (error: any) {
+      console.error(error?.response?.data || error);
+      alert("Error al crear estacionamientos");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -28,7 +50,6 @@ export default function CrearMasivoPage() {
           Crear Estacionamientos Masivo
         </h1>
 
-        {/* CARD */}
         <div
           className="p-8 rounded-[var(--radius)] shadow-lg"
           style={{ background: "var(--bg-card)" }}
@@ -42,17 +63,15 @@ export default function CrearMasivoPage() {
               </label>
               <input
                 type="number"
+                min={1}
                 value={cantidad}
                 onChange={(e) => setCantidad(e.target.value)}
-                placeholder="Ejemplo: 10"
-                className="
-                  w-full px-4 py-3 rounded-md
+                placeholder="Ej: 10"
+                className="w-full px-4 py-3 rounded-md
                   bg-[var(--bg-alt)]
                   border border-[var(--bg-alt)]
                   focus:border-[var(--primary)]
-                  focus:ring-2 focus:ring-[var(--primary)]
-                  transition
-                "
+                  focus:ring-2 focus:ring-[var(--primary)] transition"
               />
             </div>
 
@@ -63,43 +82,36 @@ export default function CrearMasivoPage() {
               </label>
               <select
                 value={tipo}
-                onChange={(e) => setTipo(e.target.value)}
-                className="
-                  w-full px-4 py-3 rounded-md
+                onChange={(e) =>
+                  setTipo(e.target.value as "Normal" | "VIP" | "Discapacitado")
+                }
+                className="w-full px-4 py-3 rounded-md
                   bg-[var(--bg-alt)]
                   border border-[var(--bg-alt)]
                   focus:border-[var(--primary)]
-                  focus:ring-2 focus:ring-[var(--primary)]
-                  transition
-                "
+                  focus:ring-2 focus:ring-[var(--primary)] transition"
               >
-                <option value="Auto">Auto</option>
-                <option value="Moto">Moto</option>
+                <option value="Normal">Normal</option>
+                <option value="VIP">VIP</option>
+                <option value="Discapacitado">Discapacitado</option>
               </select>
             </div>
 
             {/* BOTÓN CREAR */}
             <button
               type="submit"
-              className="
-                w-full py-3 rounded-md text-center
-                button
-                bg-[var(--primary)]
-                hover:bg-[var(--primary-dark)]
-                font-semibold
-              "
+              disabled={loading}
+              className="w-full py-3 rounded-md bg-[var(--primary)]
+                hover:bg-[var(--primary-dark)] font-semibold disabled:opacity-50"
             >
-              Crear Estacionamientos
+              {loading ? "Creando..." : "Crear Estacionamientos"}
             </button>
 
-            {/* BOTÓN CANCELAR */}
+            {/* CANCELAR */}
             <Link
               href="/estacionamientos/listar"
-              className="
-                w-full block text-center py-3 mt-2 rounded-md
-                button-danger
-                font-semibold
-              "
+              className="w-full block text-center py-3 mt-2 rounded-md
+                bg-[var(--danger)] hover:bg-[var(--danger-dark)] font-semibold"
             >
               Cancelar
             </Link>

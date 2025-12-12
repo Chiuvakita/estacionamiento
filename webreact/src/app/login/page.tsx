@@ -2,23 +2,52 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { Router } from "next/router";
+import { login } from "@/services/auth";
+import { useRouter } from "next/navigation";
+import { AxiosError } from "axios";
 
 export default function LoginPage() {
   const [rut, setRut] = useState("");
   const [clave, setClave] = useState("");
   const [messages, setMessages] = useState<string | null>(null);
+  const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setMessages(null);
 
     if (!rut || !clave) {
       setMessages("Debe completar ambos campos.");
       return;
     }
 
-    console.log("Datos enviados:", { rut, clave });
-    setMessages("Intentando iniciar sesión...");
+    try {
+      setMessages("Iniciando sesión...");
+
+      const data = await login(rut, clave);
+
+      if (data.token) {
+        localStorage.setItem("token", data.token);
+
+        setMessages("Inicio de sesión exitoso");
+
+        if (data.usuario?.rol === "Administrador") {
+          router.push("/admin");
+        } else {
+          router.push("/cliente");
+        }
+      } else {
+        setMessages("Credenciales inválidas.");
+      }
+    } catch (error) {
+      const err = error as AxiosError<any>;
+      setMessages(
+        (err.response?.data as any)?.detail || "Error al iniciar sesión"
+      );
+    }
   };
+
 
   return (
     <main className="min-h-screen flex items-center justify-center p-5 bg-[var(--bg)] text-[var(--text)]">

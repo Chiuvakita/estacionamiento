@@ -1,178 +1,214 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import NavbarAdmin from "@/components/NavbarAdmin";
+import api from "@/services/api";
+
+interface Estacionamiento {
+  id: number;
+  estado: "D" | "O";
+  tipo: string;
+  patente: string | null;
+  fechaInicio?: string;
+}
 
 export default function HomeAdmin() {
-  const [disponibles] = useState(12);
+  const [estacionamientos, setEstacionamientos] = useState<Estacionamiento[]>([]);
+  const [patenteIngreso, setPatenteIngreso] = useState("");
+  const [modo, setModo] = useState<"cualquiera" | "especifico">("cualquiera");
+  const [espacioSeleccionado, setEspacioSeleccionado] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const [estacionamientos] = useState([
-    { id: 1, estado: "D", tipo: "Auto" },
-    { id: 2, estado: "O", tipo: "Moto" },
-    { id: 3, estado: "D", tipo: "Auto" },
-  ]);
+  /* =========================
+     CARGA INICIAL
+  ========================= */
+  const cargarEstacionamientos = async () => {
+    setLoading(true);
+    try {
+      const { data } = await api.get("/estacionamientos/");
+      setEstacionamientos(data);
+    } catch (e) {
+      console.error(e);
+      alert("Error cargando estacionamientos");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const [ocupados] = useState([
-    { id: 2, patente: "ABC123", fecha_inicio: "10:30" },
-    { id: 5, patente: "XYZ987", fecha_inicio: "11:10" },
-  ]);
+  useEffect(() => {
+    cargarEstacionamientos();
+  }, []);
 
-  const [modo, setModo] = useState("cualquiera");
+  /* =========================
+     DERIVADOS
+  ========================= */
+  const disponibles = estacionamientos.filter(e => e.estado === "D");
+  const ocupados = estacionamientos.filter(e => e.estado === "O");
+
+  /* =========================
+     INGRESAR VEHÍCULO
+  ========================= */
+  const ingresarVehiculo = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!patenteIngreso.trim()) {
+      alert("Debe ingresar patente");
+      return;
+    }
+
+    let estacionamientoId: number | null = null;
+
+    if (modo === "cualquiera") {
+      estacionamientoId = disponibles[0]?.id ?? null;
+    } else {
+      estacionamientoId = espacioSeleccionado;
+    }
+
+    if (!estacionamientoId) {
+      alert("No hay estacionamientos disponibles");
+      return;
+    }
+
+    try {
+      await api.post(`/estacionamientos/${estacionamientoId}/ocupar/`, {
+        patente: patenteIngreso.toUpperCase(),
+      });
+
+      setPatenteIngreso("");
+      setEspacioSeleccionado(null);
+      cargarEstacionamientos();
+    } catch (error: any) {
+      console.error(error.response?.data || error);
+      alert("Error al ingresar vehículo");
+    }
+  };
+
+  /* =========================
+     SALIDA VEHÍCULO
+  ========================= */
+  const liberarVehiculo = async (id: number) => {
+    if (!confirm("¿Marcar salida del vehículo?")) return;
+
+    try {
+      await api.post(`/estacionamientos/${id}/liberar/`);
+      cargarEstacionamientos();
+    } catch (error) {
+      console.error(error);
+      alert("Error al liberar estacionamiento");
+    }
+  };
+
+  if (loading) {
+    return <div className="text-center mt-20">Cargando...</div>;
+  }
 
   return (
     <main className="p-6 min-h-screen bg-[var(--bg)] text-[var(--text)]">
+      <NavbarAdmin />
+
       <h1 className="text-3xl font-bold mb-10 text-center">
         Panel de Gestión de Estacionamiento
       </h1>
 
       {/* =======================
           DISPONIBILIDAD
-        ======================= */}
-      <section
-        className="p-6 mb-10 rounded-xl shadow-lg"
-        style={{ background: "var(--bg-card)" }}
-      >
+      ======================= */}
+      <section className="p-6 mb-10 rounded-xl shadow-lg" style={{ background: "var(--bg-card)" }}>
         <h2 className="text-2xl font-semibold mb-3">Disponibilidad actual</h2>
-
-        <div className="mt-3 text-lg">
+        <div className="text-lg">
           <span className="font-semibold text-[var(--success)]">
-            {disponibles}
+            {disponibles.length}
           </span>{" "}
           espacios disponibles
         </div>
       </section>
 
       {/* =======================
-          INGRESO / SALIDA
-        ======================= */}
-      <section
-        className="p-6 mb-10 rounded-xl shadow-lg"
-        style={{ background: "var(--bg-card)" }}
-      >
-        <h2 className="text-2xl font-semibold mb-6">Control de vehículos</h2>
+          INGRESO
+      ======================= */}
+      <section className="p-6 mb-10 rounded-xl shadow-lg" style={{ background: "var(--bg-card)" }}>
+        <h2 className="text-2xl font-semibold mb-6">Ingreso de vehículo</h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+        <form onSubmit={ingresarVehiculo} className="flex flex-col gap-4 max-w-md">
+          <input
+            type="text"
+            placeholder="Patente"
+            value={patenteIngreso}
+            onChange={(e) => setPatenteIngreso(e.target.value.toUpperCase())}
+            className="px-4 py-3 bg-[var(--bg-alt)] border rounded-lg"
+          />
 
-          {/* INGRESO */}
-          <div>
-            <h3 className="text-xl font-semibold mb-4">Ingresar vehículo</h3>
+          <label className="font-semibold">Modo de asignación</label>
+          <select
+            value={modo}
+            onChange={(e) => setModo(e.target.value as any)}
+            className="px-4 py-3 bg-[var(--bg-alt)] border rounded-lg"
+          >
+            <option value="cualquiera">Automática</option>
+            <option value="especifico">Seleccionar espacio</option>
+          </select>
 
-            <form className="flex flex-col gap-4">
-              <input
-                type="text"
-                placeholder="Patente"
-                className="px-4 py-3 bg-[var(--bg-alt)] border border-[var(--bg-alt)] rounded-lg 
-                           focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)] outline-none"
-              />
+          {modo === "especifico" && (
+            <select
+              value={espacioSeleccionado ?? ""}
+              onChange={(e) => setEspacioSeleccionado(Number(e.target.value))}
+              className="px-4 py-3 bg-[var(--bg-alt)] border rounded-lg"
+            >
+              <option value="">Seleccione espacio</option>
+              {disponibles.map(e => (
+                <option key={e.id} value={e.id}>
+                  #{e.id} — {e.tipo}
+                </option>
+              ))}
+            </select>
+          )}
 
-              <label className="font-semibold">Modo de asignación</label>
-
-              <select
-                className="px-4 py-3 bg-[var(--bg-alt)] border border-[var(--bg-alt)] rounded-lg"
-                value={modo}
-                onChange={(e) => setModo(e.target.value)}
-              >
-                <option value="cualquiera">Asignación automática</option>
-                <option value="especifico">Seleccionar espacio</option>
-              </select>
-
-              {modo === "especifico" && (
-                <select
-                  className="px-4 py-3 bg-[var(--bg-alt)] border border-[var(--bg-alt)] rounded-lg"
-                >
-                  {estacionamientos
-                    .filter((e) => e.estado === "D")
-                    .map((e) => (
-                      <option key={e.id} value={e.id}>
-                        Espacio #{e.id} — {e.tipo}
-                      </option>
-                    ))}
-                </select>
-              )}
-
-              <button
-                type="submit"
-                className="py-3 rounded-lg bg-[var(--primary)] hover:bg-[var(--primary-dark)] 
-                           transition-transform font-semibold hover:scale-[1.03]"
-              >
-                Ingresar vehículo
-              </button>
-            </form>
-          </div>
-
-          {/* SALIDA */}
-          <div>
-            <h3 className="text-xl font-semibold mb-4">Salida por patente</h3>
-
-            <form className="flex flex-col gap-4">
-              <input
-                type="text"
-                placeholder="Ej: ABC123"
-                className="px-4 py-3 bg-[var(--bg-alt)] border border-[var(--bg-alt)] rounded-lg 
-                           focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)] outline-none"
-              />
-
-              <button
-                type="submit"
-                className="py-3 rounded-lg bg-[var(--danger)] hover:bg-[var(--danger-dark)] 
-                           transition-transform font-semibold hover:scale-[1.03]"
-              >
-                Finalizar salida
-              </button>
-            </form>
-          </div>
-        </div>
+          <button className="py-3 rounded-lg bg-[var(--primary)] font-semibold">
+            Ingresar vehículo
+          </button>
+        </form>
       </section>
 
       {/* =======================
           OCUPADOS
-        ======================= */}
-      <section
-        className="p-6 rounded-xl shadow-lg"
-        style={{ background: "var(--bg-card)" }}
-      >
+      ======================= */}
+      <section className="p-6 rounded-xl shadow-lg" style={{ background: "var(--bg-card)" }}>
         <h2 className="text-2xl font-semibold mb-6">Espacios ocupados</h2>
 
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse">
-            <thead>
-              <tr className="bg-[var(--bg-alt)] text-[var(--text-light)]">
-                <th className="px-4 py-3">Espacio</th>
-                <th className="px-4 py-3">Patente</th>
-                <th className="px-4 py-3">Hora ingreso</th>
-                <th className="px-4 py-3">Acción</th>
-              </tr>
-            </thead>
+        <table className="w-full border-collapse">
+          <thead>
+            <tr className="bg-[var(--bg-alt)]">
+              <th className="p-3">Espacio</th>
+              <th className="p-3">Patente</th>
+              <th className="p-3">Acción</th>
+            </tr>
+          </thead>
 
-            <tbody>
-              {ocupados.length ? (
-                ocupados.map((e) => (
-                  <tr key={e.id} className="border-b border-[var(--bg-alt)]">
-                    <td className="px-4 py-3 font-semibold">#{e.id}</td>
-                    <td className="px-4 py-3">{e.patente}</td>
-                    <td className="px-4 py-3">{e.fecha_inicio}</td>
-                    <td className="px-4 py-3">
-                      <button
-                        className="px-4 py-2 rounded-lg bg-[var(--danger)] hover:bg-[var(--danger-dark)] 
-                                   transition-transform hover:scale-[1.03]"
-                      >
-                        Marcar salida
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td
-                    colSpan={4}
-                    className="py-4 text-center text-[var(--text-light)]"
-                  >
-                    No hay vehículos estacionados
+          <tbody>
+            {ocupados.length ? (
+              ocupados.map(e => (
+                <tr key={e.id} className="border-b">
+                  <td className="p-3 font-semibold">#{e.id}</td>
+                  <td className="p-3">{e.patente}</td>
+                  <td className="p-3">
+                    <button
+                      onClick={() => liberarVehiculo(e.id)}
+                      className="px-4 py-2 rounded-lg bg-[var(--danger)]"
+                    >
+                      Marcar salida
+                    </button>
                   </td>
                 </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={3} className="text-center py-4 opacity-60">
+                  No hay vehículos estacionados
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
       </section>
     </main>
   );

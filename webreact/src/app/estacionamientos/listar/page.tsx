@@ -3,33 +3,63 @@
 import NavbarAdmin from "@/components/NavbarAdmin";
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import {
+  listarEstacionamientos,
+  eliminarEstacionamiento,
+  eliminarTodosEstacionamientos,
+} from "@/services/estacionamientos";
+
 
 export default function EstacionamientosListar() {
   const [estacionamientos, setEstacionamientos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Simulación API
-    setTimeout(() => {
-      setEstacionamientos([
-        { id: 1, estado: "Libre", tipo: "Auto", patente: "-" },
-        { id: 2, estado: "Ocupado", tipo: "Moto", patente: "ABCD12" },
-      ]);
-      setLoading(false);
-    }, 300);
+    setLoading(true);
+
+    listarEstacionamientos()
+      .then(setEstacionamientos)
+      .catch((err) => {
+        console.error("Error cargando estacionamientos", err);
+      })
+      .finally(() => setLoading(false));
   }, []);
 
-  const eliminarEstacionamiento = (id: number) => {
-    if (confirm(`¿Eliminar estacionamiento #${id}?`)) {
-      alert("Eliminado (simulación)");
+
+  const eliminarEstacionamientoHandler = async (id: number) => {
+    if (!confirm(`¿Eliminar estacionamiento #${id}?`)) return;
+
+    try {
+      await eliminarEstacionamiento(id);
+
+      setEstacionamientos((prev) =>
+        prev.filter((e) => e.id !== id)
+      );
+
+      alert("Estacionamiento eliminado");
+    } catch (error) {
+      console.error(error);
+      alert("Error al eliminar");
     }
   };
 
-  const eliminarTodos = () => {
-    if (confirm("¿Eliminar TODOS los estacionamientos?")) {
-      alert("Todos eliminados (simulación)");
+
+
+  const eliminarTodos = async () => {
+    if (!confirm("¿Eliminar TODOS los estacionamientos?")) return;
+
+    try {
+      const res = await eliminarTodosEstacionamientos();
+      alert(`Eliminados ${res.eliminados} estacionamientos`);
+      // recargar listado
+      setEstacionamientos([]);
+    } catch (error) {
+      alert("Error al eliminar estacionamientos");
     }
   };
+
+
+
 
   if (loading)
     return <div className="text-center text-[var(--text)] mt-20">Cargando...</div>;
@@ -60,6 +90,7 @@ export default function EstacionamientosListar() {
           >
             Eliminar todos
           </button>
+
         </div>
 
         {/* Tabla */}
@@ -94,7 +125,7 @@ export default function EstacionamientosListar() {
                     </Link>
 
                     <button
-                      onClick={() => eliminarEstacionamiento(e.id)}
+                      onClick={() => eliminarEstacionamientoHandler(e.id)}
                       className="button button-danger"
                     >
                       Eliminar
