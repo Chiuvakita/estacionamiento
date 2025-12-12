@@ -2,51 +2,51 @@
 
 import NavbarAdmin from "@/components/NavbarAdmin";
 import { useEffect, useState } from "react";
-
-// Simulación de API
-const mockHistorial = [
-  {
-    estacionamiento_id: 1,
-    movimientos: [
-      {
-        id: 1,
-        patente: "ABCD12",
-        fecha_inicio: "2025-01-01 10:00",
-        fecha_termino: "2025-01-01 12:00",
-        es_reserva: true,
-      },
-      {
-        id: 2,
-        patente: "EFGH34",
-        fecha_inicio: "2025-01-02 09:00",
-        fecha_termino: null,
-        es_reserva: false,
-      },
-    ],
-  },
-  {
-    estacionamiento_id: 2,
-    movimientos: [
-      {
-        id: 1,
-        patente: "ZZZZ99",
-        fecha_inicio: "2025-01-03 15:00",
-        fecha_termino: "2025-01-03 17:00",
-        es_reserva: true,
-      },
-    ],
-  },
-];
+import api from "@/services/api";
 
 export default function HistorialListarPage() {
   const [historial, setHistorial] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setTimeout(() => {
-      setHistorial(mockHistorial);
-      setLoading(false);
-    }, 300);
+    const cargarHistorial = async () => {
+      try {
+        const { data } = await api.get("/historial/");
+
+        const agrupado: Record<number, any[]> = {};
+
+        data.forEach((item: any) => {
+          const estId = item.estacionamiento;
+
+          if (!agrupado[estId]) {
+            agrupado[estId] = [];
+          }
+
+          agrupado[estId].push({
+            id: item.id,
+            patente: item.vehiculo?.patente ?? "SIN PATENTE",
+            fecha_inicio: new Date(item.fechaInicio).toLocaleString(),
+            fecha_termino: item.fechaTermino
+              ? new Date(item.fechaTermino).toLocaleString()
+              : null,
+            es_reserva: item.es_reserva,
+          });
+        });
+
+        const historialFormateado = Object.keys(agrupado).map((key) => ({
+          estacionamiento_id: Number(key),
+          movimientos: agrupado[Number(key)],
+        }));
+
+        setHistorial(historialFormateado);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    cargarHistorial();
   }, []);
 
   if (loading) {
@@ -78,7 +78,9 @@ export default function HistorialListarPage() {
 
         {/* Lista por espacio */}
         {historial.length === 0 ? (
-          <p className="text-center text-gray-400">No hay registros disponibles.</p>
+          <p className="text-center text-gray-400">
+            No hay registros disponibles.
+          </p>
         ) : (
           historial.map((grupo) => (
             <div
@@ -120,9 +122,13 @@ export default function HistorialListarPage() {
                         </td>
                         <td className="p-3">
                           {m.es_reserva ? (
-                            <span className="text-green-400 font-semibold">SI</span>
+                            <span className="text-green-400 font-semibold">
+                              SI
+                            </span>
                           ) : (
-                            <span className="text-red-400 font-semibold">NO</span>
+                            <span className="text-red-400 font-semibold">
+                              NO
+                            </span>
                           )}
                         </td>
                       </tr>

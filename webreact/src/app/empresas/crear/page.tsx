@@ -2,21 +2,26 @@
 
 import EmpresaForm from "@/components/EmpresaForm";
 import NavbarAdmin from "@/components/NavbarAdmin";
+import { crearEmpresa } from "@/services/empresas";
+import { useRouter } from "next/navigation";
 
 export default function CrearEmpresaPage() {
-  const handleCreate = (data: any) => {
-    console.log("Datos enviados para crear empresa:", data);
+  const router = useRouter();
 
-    // Aquí después va:
-    // axios.post("/api/empresas/", data)
-
-    alert("Empresa creada (simulación)");
+  const handleCreate = async (data: any) => {
+    try {
+      await crearEmpresa(data);
+      router.push("/empresas/listar");
+    } catch (error: any) {
+      alert("Error al crear empresa");
+      console.error(error);
+    }
   };
 
   return (
     <div className="min-h-screen bg-[var(--bg)] text-[var(--text)]">
       <NavbarAdmin />
-      
+
       <main className="max-w-3xl mx-auto p-6">
         <h1 className="text-3xl font-bold mb-6 text-center">
           Crear Empresa

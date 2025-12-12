@@ -4,6 +4,9 @@ import React, { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import NavbarAdmin from "@/components/NavbarAdmin";
+import { listarSucursalesPorEmpresa } from "@/services/sucursales";
+import { eliminarSucursal } from "@/services/sucursales";
+
 
 export default function SucursalesListarPage() {
   const { empresaID } = useParams();
@@ -12,25 +15,20 @@ export default function SucursalesListarPage() {
 
   // Simula carga de API
   useEffect(() => {
-    setTimeout(() => {
-      setSucursales([
-        {
-          id: 1,
-          nombreSucursal: "Sucursal Centro",
-          direccion: "Av. Principal 123",
-          numero: "+56911112222",
-          cantidadEstacionamiento: 12,
-        },
-        {
-          id: 2,
-          nombreSucursal: "Sucursal Norte",
-          direccion: "Ruta 5 Norte Km 5",
-          numero: "+56933334444",
-          cantidadEstacionamiento: 8,
-        },
-      ]);
-      setLoading(false);
-    }, 300);
+    if (!empresaID) return;
+
+    setLoading(true);
+
+    listarSucursalesPorEmpresa(Number(empresaID))
+      .then((data) => {
+        setSucursales(data);
+      })
+      .catch((err) => {
+        console.error("Error cargando sucursales", err);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   }, [empresaID]);
 
   const toggleOpen = (id: number) => {
@@ -40,6 +38,27 @@ export default function SucursalesListarPage() {
       )
     );
   };
+  
+    const handleDelete = async (id: number) => {
+    const confirm = window.confirm(
+      "¿Estás seguro de eliminar esta sucursal? Esta acción no se puede deshacer."
+    );
+
+    if (!confirm) return;
+
+    try {
+      await eliminarSucursal(id);
+
+      // 🔥 actualizar lista sin recargar
+      setSucursales((prev) => prev.filter((s) => s.id !== id));
+
+      alert("Sucursal eliminada correctamente");
+    } catch (error) {
+      console.error("Error eliminando sucursal", error);
+      alert("Error al eliminar la sucursal");
+    }
+  };
+
 
   if (loading) {
     return <div className="text-center text-[var(--text)] mt-20">Cargando...</div>;
@@ -114,11 +133,15 @@ export default function SucursalesListarPage() {
                           </Link>
 
                           <button
-                            onClick={() => alert("Eliminar sucursal (simulación)")}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDelete(sucursal.id);
+                            }}
                             className="px-4 py-2 rounded-md bg-[var(--danger)] hover:bg-[var(--danger-dark)]"
                           >
                             Eliminar
                           </button>
+
                         </div>
                       </td>
                     </tr>

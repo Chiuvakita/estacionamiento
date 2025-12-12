@@ -1,19 +1,24 @@
 "use client";
 
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import NavbarAdmin from "@/components/NavbarAdmin";
 import SucursalForm from "@/components/sucursaleFrom";
+import { crearSucursal } from "@/services/sucursales";
 
 export default function CrearSucursalPage() {
-  const { empresaId } = useParams();
+  const { empresaID } = useParams(); // ✅ NOMBRE CORRECTO
+  const router = useRouter();
 
-  const handleCreate = (data: any) => {
-    console.log("Crear sucursal para empresa:", empresaId, data);
+  const handleCreate = async (data: any) => {
+    try {
+      await crearSucursal(Number(empresaID), data);
 
-    // Luego:
-    // axios.post(`/api/empresas/${empresaId}/sucursales/`, data);
-
-    alert("Sucursal creada (simulación)");
+      alert("Sucursal creada correctamente");
+      router.push(`/empresas/${empresaID}/sucursales/listar`);
+    } catch (error) {
+      console.error(error);
+      alert("Error al crear sucursal");
+    }
   };
 
   return (
@@ -25,7 +30,10 @@ export default function CrearSucursalPage() {
           Crear Sucursal
         </h1>
 
-        <div className="p-6 rounded-[var(--radius)] shadow" style={{ background: "var(--bg-card)" }}>
+        <div
+          className="p-6 rounded-[var(--radius)] shadow"
+          style={{ background: "var(--bg-card)" }}
+        >
           <SucursalForm onSubmit={handleCreate} />
         </div>
       </main>

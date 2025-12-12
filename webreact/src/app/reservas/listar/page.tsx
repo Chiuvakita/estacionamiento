@@ -6,37 +6,75 @@ import { useEffect, useState } from "react";
 
 export default function ListarReservasPage() {
   const [reservas, setReservas] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Simulación
-  useEffect(() => {
-    setTimeout(() => {
-      setReservas([
-        {
-          id: 1,
-          patente: "AAAA11",
-          estacionamiento: 3,
-          fechaInicio: "2025-01-10 12:00",
-          fechaTermino: "2025-01-10 13:00",
-          duracion: 60,
-          restante: "20 min",
-        },
-        {
-          id: 2,
-          patente: "BBBB22",
-          estacionamiento: 1,
-          fechaInicio: "2025-01-10 09:00",
-          fechaTermino: "2025-01-10 10:00",
-          duracion: 60,
-          restante: "Finalizada",
-        },
-      ]);
-    }, 300);
-  }, []);
+  /* =========================
+     CARGAR DESDE LOCALSTORAGE
+  ========================= */
+  const cargarReservas = () => {
+    const data = JSON.parse(
+      localStorage.getItem("reservas_cliente") || "[]"
+    );
 
-  const terminarReserva = (id: number) => {
-    alert(`Reserva ${id} terminada (simulación)`);
+    setReservas(
+      data.map((r: any) => ({
+        ...r,
+        fechaInicio: new Date(r.fechaInicio).toLocaleString(),
+        fechaTermino: r.fechaTermino
+          ? new Date(r.fechaTermino).toLocaleString()
+          : "-",
+      }))
+    );
+
+    setLoading(false);
   };
 
+  useEffect(() => {
+    cargarReservas();
+  }, []);
+
+  /* =========================
+     TERMINAR RESERVA
+  ========================= */
+  const finalizar = (id: number) => {
+    if (!confirm("¿Terminar esta reserva?")) return;
+
+    const data = JSON.parse(
+      localStorage.getItem("reservas_cliente") || "[]"
+    );
+
+    const actualizadas = data.map((r: any) =>
+      r.id === id
+        ? {
+            ...r,
+            fechaTermino: new Date().toISOString(),
+            restante: "Finalizada",
+          }
+        : r
+    );
+
+    localStorage.setItem(
+      "reservas_cliente",
+      JSON.stringify(actualizadas)
+    );
+
+    cargarReservas();
+  };
+
+  /* =========================
+     LOADING
+  ========================= */
+  if (loading) {
+    return (
+      <div className="text-center mt-20 text-[var(--text)]">
+        Cargando reservas...
+      </div>
+    );
+  }
+
+  /* =========================
+     JSX
+  ========================= */
   return (
     <div className="min-h-screen bg-[var(--bg)] text-[var(--text)]">
       <NavbarCliente />
@@ -46,7 +84,7 @@ export default function ListarReservasPage() {
           Listado de Reservas
         </h1>
 
-        {/* Acciones */}
+        {/* ACCIONES */}
         <div className="flex gap-4 mb-6 flex-wrap">
           <Link
             href="/reservas/crear"
@@ -63,7 +101,7 @@ export default function ListarReservasPage() {
           </Link>
         </div>
 
-        {/* Contenedor Tabla */}
+        {/* TABLA */}
         <div
           className="rounded-[var(--radius)] shadow overflow-hidden"
           style={{ background: "var(--bg-card)" }}
@@ -85,29 +123,29 @@ export default function ListarReservasPage() {
             <tbody>
               {reservas.length === 0 && (
                 <tr>
-                  <td colSpan={8} className="p-4 text-center text-[var(--text-light)]">
+                  <td
+                    colSpan={8}
+                    className="p-4 text-center text-[var(--text-light)]"
+                  >
                     No hay reservas registradas.
                   </td>
                 </tr>
               )}
 
               {reservas.map((r) => (
-                <tr
-                  key={r.id}
-                  className="hover:bg-[#2d3748] transition"
-                >
+                <tr key={r.id} className="hover:bg-[#2d3748] transition">
                   <td className="p-3">{r.id}</td>
                   <td className="p-3">{r.patente}</td>
-                  <td className="p-3">{r.estacionamiento}</td>
+                  <td className="p-3">#{r.estacionamiento}</td>
                   <td className="p-3">{r.fechaInicio}</td>
-                  <td className="p-3">{r.fechaTermimo ?? r.fechaTermino}</td>
+                  <td className="p-3">{r.fechaTermino}</td>
                   <td className="p-3">{r.duracion} min</td>
                   <td className="p-3">{r.restante}</td>
 
                   <td className="p-3">
                     {r.restante !== "Finalizada" ? (
                       <button
-                        onClick={() => terminarReserva(r.id)}
+                        onClick={() => finalizar(r.id)}
                         className="px-4 py-2 rounded-md bg-[var(--danger)] hover:bg-[var(--danger-dark)]"
                       >
                         Terminar

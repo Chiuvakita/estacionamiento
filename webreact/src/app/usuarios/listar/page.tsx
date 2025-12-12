@@ -3,29 +3,39 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import NavbarAdmin from "@/components/NavbarAdmin";
+import { listarUsuarios, eliminarUsuario } from "@/services/usuarios";
 
 export default function UsuariosListarPage() {
   const [usuarios, setUsuarios] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const handleEliminar = async (rut: number) => {
+    const confirmar = confirm(
+      "¿Estás seguro de eliminar este usuario? Esta acción no se puede deshacer."
+    );
+
+    if (!confirmar) return;
+
+    try {
+      await eliminarUsuario(rut);
+
+      // Actualizar tabla sin recargar
+      setUsuarios((prev) => prev.filter((u) => u.rut !== rut));
+    } catch (error) {
+      console.error(error);
+      alert("No tienes permiso para eliminar este usuario.");
+    }
+  };
+
   useEffect(() => {
-    setTimeout(() => {
-      setUsuarios([
-        {
-          rut: "12345678-9",
-          nombre: "Carlos",
-          apellidoPaterno: "Gomez",
-          apellidoMaterno: "Lopez",
-          numeroTelefono: "+56911112222",
-          rol: "Administrador",
-          discapacidad: false,
-        },
-      ]);
-      setLoading(false);
-    }, 300);
+    listarUsuarios()
+      .then(setUsuarios)
+      .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <div className="text-center mt-20">Cargando...</div>;
+  if (loading) {
+    return <div className="text-center mt-20">Cargando...</div>;
+  }
 
   return (
     <>
@@ -48,9 +58,12 @@ export default function UsuariosListarPage() {
           </Link>
         </div>
 
-        {/* TABLA DARK */}
+        {/* TABLA */}
         <div className="overflow-hidden rounded-lg shadow-lg">
-          <table className="w-full border-collapse" style={{ background: "var(--bg-card)" }}>
+          <table
+            className="w-full border-collapse"
+            style={{ background: "var(--bg-card)" }}
+          >
             <thead className="bg-[var(--bg-alt)]">
               <tr>
                 {[
@@ -83,7 +96,9 @@ export default function UsuariosListarPage() {
                   <td className="p-3">{u.apellidoMaterno}</td>
                   <td className="p-3">{u.numeroTelefono}</td>
                   <td className="p-3">{u.rol}</td>
-                  <td className="p-3">{u.discapacidad ? "Sí" : "No"}</td>
+                  <td className="p-3">
+                    {u.discapacidad ? "Sí" : "No"}
+                  </td>
 
                   <td className="p-3 flex gap-3">
                     <Link
@@ -95,6 +110,7 @@ export default function UsuariosListarPage() {
                     </Link>
 
                     <button
+                      onClick={() => handleEliminar(u.rut)}
                       className="px-4 py-2 rounded-md text-white"
                       style={{ background: "var(--danger)" }}
                     >
@@ -103,6 +119,17 @@ export default function UsuariosListarPage() {
                   </td>
                 </tr>
               ))}
+
+              {usuarios.length === 0 && (
+                <tr>
+                  <td
+                    colSpan={7}
+                    className="text-center p-6 text-gray-400"
+                  >
+                    No hay usuarios registrados
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
