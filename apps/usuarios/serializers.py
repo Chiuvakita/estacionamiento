@@ -59,7 +59,7 @@ class RegistroClienteSerializer(serializers.ModelSerializer):
 
     def validate(self, datos):
         if datos['clave'] != datos['confirmarClave']:
-            raise serializers.ValidationError({'clave': 'Las contraseñas no coinciden'})
+            raise serializers.ValidationError({'clave': 'Claves no coinciden'})
         
         datosFormulario = datos.copy()
         datosFormulario.pop('confirmarClave')
@@ -100,14 +100,14 @@ class UsuarioLoginSerializer(serializers.Serializer):
         user = authenticate(username=username, password=password)
         
         if user is None:
-            raise serializers.ValidationError('Usuario o contraseña incorrectos.')
+            raise serializers.ValidationError('Credenciales invalidas')
         
         try:
             usuario = Usuario.objects.get(rut=int(username))
             datos['usuario'] = usuario
             datos['usuarioDjango'] = user
         except (Usuario.DoesNotExist, ValueError):
-            raise serializers.ValidationError('Usuario no encontrado.')
+            raise serializers.ValidationError('Usuario no existe')
         
         return datos
 

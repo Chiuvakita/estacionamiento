@@ -4,7 +4,7 @@ class Vehiculo(models.Model):
     patente = models.CharField(
         max_length=6,
         unique=True,
-        error_messages={'unique': 'Ya existe un vehículo con esta patente.'}
+        error_messages={'unique': 'Ya existe un vehiculo con esta patente'}
     )
     marca = models.CharField(max_length=50)
     modelo = models.CharField(max_length=50)

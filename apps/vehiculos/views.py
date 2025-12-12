@@ -1,48 +1,61 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Vehiculo
 from .forms import VehiculoForm
+from .serializers import VehiculoSerializer
 from apps.utils.decoradores import loginRequerido  
 
 @loginRequerido
-def listar(request):
+def listar(solicitud):
     vehiculos = Vehiculo.objects.all().order_by("patente")
-    return render(request, "vehiculos/listar.html", {"vehiculos": vehiculos})
+    return render(solicitud, "vehiculos/listar.html", {"vehiculos": vehiculos})
 
 @loginRequerido
-def crear(request):
-    if request.method == "POST":
-        form = VehiculoForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect("listarVehiculos")   
+def crear(solicitud):
+    if solicitud.method == "POST":
+        serializador = VehiculoSerializer(data=solicitud.POST)
+        if serializador.is_valid():
+            serializador.save()
+            return redirect("listarVehiculos")
+        else:
+            formulario = VehiculoForm(solicitud.POST)
+            formulario.is_valid()
+            for campo, errores in serializador.errors.items():
+                for error in errores:
+                    formulario.add_error(campo, error)
     else:
-        form = VehiculoForm()
-    return render(request, "vehiculos/crear.html", {"form": form})
+        formulario = VehiculoForm()
+    return render(solicitud, "vehiculos/crear.html", {"form": formulario})
 
 @loginRequerido
-def editar(request, id):
+def editar(solicitud, id):
     vehiculo = get_object_or_404(Vehiculo, pk=id)
 
-    if request.method == "POST":
-        form = VehiculoForm(request.POST, instance=vehiculo)
-        if form.is_valid():
-            form.save()
-            return redirect("listarVehiculos")   
+    if solicitud.method == "POST":
+        serializador = VehiculoSerializer(vehiculo, data=solicitud.POST)
+        if serializador.is_valid():
+            serializador.save()
+            return redirect("listarVehiculos")
+        else:
+            formulario = VehiculoForm(solicitud.POST, instance=vehiculo)
+            formulario.is_valid()
+            for campo, errores in serializador.errors.items():
+                for error in errores:
+                    formulario.add_error(campo, error)
     else:
-        form = VehiculoForm(instance=vehiculo)
+        formulario = VehiculoForm(instance=vehiculo)
 
-    return render(request, "vehiculos/editar.html", {
-        "form": form,
+    return render(solicitud, "vehiculos/editar.html", {
+        "form": formulario,
         "vehiculo": vehiculo
     })
 
 @loginRequerido
-def eliminar(request, id):
+def eliminar(solicitud, id):
     vehiculo = get_object_or_404(Vehiculo, pk=id)
     vehiculo.delete()
     return redirect("listarVehiculos")   
 
 @loginRequerido
-def eliminar_todos(request):
+def eliminarTodos(solicitud):
     Vehiculo.objects.all().delete()
     return redirect("listarVehiculos")  

@@ -43,12 +43,12 @@ class ReservaSerializer(serializers.ModelSerializer):
     def validate(self, datos):
         duracion = datos.get("duracionHoras")
         if duracion is None or duracion <= 0:
-            raise serializers.ValidationError({"duracionHoras": "La duración debe ser mayor a 0"})
+            raise serializers.ValidationError({"duracionHoras": "Duracion: min 1 hora"})
         est = datos.get("estacionamiento")
         if est and est.estado != "D":
-            raise serializers.ValidationError({"estacionamiento": "El estacionamiento no está disponible"})
+            raise serializers.ValidationError({"estacionamiento": "Estacionamiento no disponible"})
         if existe_reserva_activa_o_programada():
-            raise serializers.ValidationError({"non_field_errors": ["Ya existe una reserva activa o programada"]})
+            raise serializers.ValidationError({"non_field_errors": ["Reserva activa existe"]})
         return datos
 
     def create(self, datos):
