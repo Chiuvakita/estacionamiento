@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from apps.empresas.models import Empresa, Sucursal
 from apps.empresas.serializers import EmpresaSerializer, SucursalSerializer, SucursalListSerializer
+from apps.usuarios.models import Usuario
 
 
 class EmpresaViewSet(viewsets.ModelViewSet):
@@ -11,7 +12,16 @@ class EmpresaViewSet(viewsets.ModelViewSet):
     serializer_class = EmpresaSerializer
     permission_classes = [IsAuthenticated]
     
+    def _usuario(self, solicitud):
+        nombreUsuario = getattr(solicitud.user, "username", "")
+        if str(nombreUsuario).isdigit():
+            return Usuario.objects.filter(rut=int(nombreUsuario)).first()
+        return None
+    
     def list(self, solicitud):
+        usuario = self._usuario(solicitud)
+        if not usuario or usuario.rol not in ["Administrador", "Empleado"]:
+            return Response({"detail": "Sin autorizacion"}, status=status.HTTP_403_FORBIDDEN)
         empresas = self.get_queryset()
         serializador = self.get_serializer(empresas, many=True)
         return Response(serializador.data)
@@ -24,6 +34,9 @@ class EmpresaViewSet(viewsets.ModelViewSet):
         return Response(serializador.errors, status=status.HTTP_400_BAD_REQUEST)
     
     def retrieve(self, solicitud, pk=None):
+        usuario = self._usuario(solicitud)
+        if not usuario or usuario.rol not in ["Administrador", "Empleado"]:
+            return Response({"detail": "Sin autorizacion"}, status=status.HTTP_403_FORBIDDEN)
         try:
             empresa = self.get_queryset().get(pk=pk)
             serializador = self.get_serializer(empresa)
@@ -35,6 +48,9 @@ class EmpresaViewSet(viewsets.ModelViewSet):
             )
     
     def update(self, solicitud, pk=None):
+        usuario = self._usuario(solicitud)
+        if not usuario or usuario.rol not in ["Administrador", "Empleado"]:
+            return Response({"detail": "Sin autorizacion"}, status=status.HTTP_403_FORBIDDEN)
         try:
             empresa = self.get_queryset().get(pk=pk)
             serializador = self.get_serializer(empresa, data=solicitud.data)
@@ -49,6 +65,9 @@ class EmpresaViewSet(viewsets.ModelViewSet):
             )
     
     def partial_update(self, solicitud, pk=None):
+        usuario = self._usuario(solicitud)
+        if not usuario or usuario.rol not in ["Administrador", "Empleado"]:
+            return Response({"detail": "Sin autorizacion"}, status=status.HTTP_403_FORBIDDEN)
         try:
             empresa = self.get_queryset().get(pk=pk)
             serializador = self.get_serializer(empresa, data=solicitud.data, partial=True)
@@ -63,6 +82,9 @@ class EmpresaViewSet(viewsets.ModelViewSet):
             )
     
     def destroy(self, solicitud, pk=None):
+        usuario = self._usuario(solicitud)
+        if not usuario or usuario.rol not in ["Administrador", "Empleado"]:
+            return Response({"detail": "Sin autorizacion"}, status=status.HTTP_403_FORBIDDEN)
         try:
             empresa = self.get_queryset().get(pk=pk)
             empresa.delete()
@@ -78,6 +100,9 @@ class EmpresaViewSet(viewsets.ModelViewSet):
     
     @action(detail=True, methods=['get'])
     def sucursales(self, solicitud, pk=None):
+        usuario = self._usuario(solicitud)
+        if not usuario or usuario.rol not in ["Administrador", "Empleado"]:
+            return Response({"detail": "Sin autorizacion"}, status=status.HTTP_403_FORBIDDEN)
         try:
             empresa = self.get_queryset().get(pk=pk)
             sucursales = Sucursal.objects.filter(empresa=empresa)
@@ -95,6 +120,12 @@ class SucursalViewSet(viewsets.ModelViewSet):
     serializer_class = SucursalSerializer
     permission_classes = [IsAuthenticated]
     
+    def _usuario(self, solicitud):
+        nombreUsuario = getattr(solicitud.user, "username", "")
+        if str(nombreUsuario).isdigit():
+            return Usuario.objects.filter(rut=int(nombreUsuario)).first()
+        return None
+    
     def get_queryset(self):
         consulta = Sucursal.objects.all()
         empresaId = self.request.query_params.get('empresa_id', None)
@@ -103,11 +134,17 @@ class SucursalViewSet(viewsets.ModelViewSet):
         return consulta
     
     def list(self, solicitud):
+        usuario = self._usuario(solicitud)
+        if not usuario or usuario.rol not in ["Administrador", "Empleado"]:
+            return Response({"detail": "Sin autorizacion"}, status=status.HTTP_403_FORBIDDEN)
         sucursales = self.get_queryset()
         serializador = SucursalListSerializer(sucursales, many=True)
         return Response(serializador.data)
     
     def create(self, solicitud):
+        usuario = self._usuario(solicitud)
+        if not usuario or usuario.rol not in ["Administrador", "Empleado"]:
+            return Response({"detail": "Sin autorizacion"}, status=status.HTTP_403_FORBIDDEN)
         serializador = self.get_serializer(data=solicitud.data)
         if serializador.is_valid():
             serializador.save()
@@ -115,6 +152,9 @@ class SucursalViewSet(viewsets.ModelViewSet):
         return Response(serializador.errors, status=status.HTTP_400_BAD_REQUEST)
     
     def retrieve(self, solicitud, pk=None):
+        usuario = self._usuario(solicitud)
+        if not usuario or usuario.rol not in ["Administrador", "Empleado"]:
+            return Response({"detail": "Sin autorizacion"}, status=status.HTTP_403_FORBIDDEN)
         try:
             sucursal = self.get_queryset().get(pk=pk)
             serializador = self.get_serializer(sucursal)
@@ -126,6 +166,9 @@ class SucursalViewSet(viewsets.ModelViewSet):
             )
     
     def update(self, solicitud, pk=None):
+        usuario = self._usuario(solicitud)
+        if not usuario or usuario.rol not in ["Administrador", "Empleado"]:
+            return Response({"detail": "Sin autorizacion"}, status=status.HTTP_403_FORBIDDEN)
         try:
             sucursal = self.get_queryset().get(pk=pk)
             serializador = self.get_serializer(sucursal, data=solicitud.data)
@@ -140,6 +183,9 @@ class SucursalViewSet(viewsets.ModelViewSet):
             )
     
     def partial_update(self, solicitud, pk=None):
+        usuario = self._usuario(solicitud)
+        if not usuario or usuario.rol not in ["Administrador", "Empleado"]:
+            return Response({"detail": "Sin autorizacion"}, status=status.HTTP_403_FORBIDDEN)
         try:
             sucursal = self.get_queryset().get(pk=pk)
             serializador = self.get_serializer(sucursal, data=solicitud.data, partial=True)
@@ -154,6 +200,9 @@ class SucursalViewSet(viewsets.ModelViewSet):
             )
     
     def destroy(self, solicitud, pk=None):
+        usuario = self._usuario(solicitud)
+        if not usuario or usuario.rol not in ["Administrador", "Empleado"]:
+            return Response({"detail": "Sin autorizacion"}, status=status.HTTP_403_FORBIDDEN)
         try:
             sucursal = self.get_queryset().get(pk=pk)
             sucursal.delete()
