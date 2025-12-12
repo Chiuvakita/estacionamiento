@@ -1,10 +1,7 @@
-// src/services/auth.ts
-// LOGIN
-
 import api from "./api";
 
 export interface LoginResponse {
-  success: boolean;
+  success?: boolean;
   token?: string;
   usuario?: {
     rut: number;
@@ -25,19 +22,6 @@ export const login = async (
 
   return response.data;
 };
-
-// REGISTRO
-
-
-
-
-
-
-
-
-
-
-
 
 
 

@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Router } from "next/router";
 import { login } from "@/services/auth";
 import { useRouter } from "next/navigation";
 import { AxiosError } from "axios";
@@ -27,12 +26,15 @@ export default function LoginPage() {
 
       const data = await login(rut, clave);
 
-      if (data.token) {
+      if (data.token && data.usuario) {
+        // 🔐 guardar sesión
         localStorage.setItem("token", data.token);
+        localStorage.setItem("usuario", JSON.stringify(data.usuario));
 
         setMessages("Inicio de sesión exitoso");
 
-        if (data.usuario?.rol === "Administrador") {
+        // 🔁 redirección por rol
+        if (data.usuario.rol === "Administrador") {
           router.push("/admin");
         } else {
           router.push("/cliente");
@@ -43,11 +45,10 @@ export default function LoginPage() {
     } catch (error) {
       const err = error as AxiosError<any>;
       setMessages(
-        (err.response?.data as any)?.detail || "Error al iniciar sesión"
+        err.response?.data?.detail || "Error al iniciar sesión"
       );
     }
   };
-
 
   return (
     <main className="min-h-screen flex items-center justify-center p-5 bg-[var(--bg)] text-[var(--text)]">
@@ -59,12 +60,10 @@ export default function LoginPage() {
           boxShadow: "var(--shadow)",
         }}
       >
-        {/* Título */}
         <h1 className="text-center text-3xl font-bold mb-8 tracking-wide">
           Iniciar Sesión
         </h1>
 
-        {/* Mensajes */}
         {messages && (
           <div
             className="mb-5 alert"
@@ -80,49 +79,43 @@ export default function LoginPage() {
           </div>
         )}
 
-        {/* Formulario */}
-        <form onSubmit={handleSubmit} className="usuario-form flex flex-col gap-6">
-
-          {/* RUT */}
-          <div className="form-group">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+          <div>
             <label className="block mb-1 font-semibold text-sm">RUT:</label>
             <input
               type="number"
-              placeholder="Ingrese su RUT sin puntos ni guión"
               value={rut}
               onChange={(e) => setRut(e.target.value)}
-              className="form-control w-full px-4 py-2 rounded-md bg-[var(--bg-card)] border border-[var(--bg-alt)] focus:border-[var(--primary)] focus:ring-[var(--primary)] focus:ring-2 outline-none"
+              className="w-full px-4 py-2 rounded-md bg-[var(--bg-card)] border border-[var(--bg-alt)]"
             />
           </div>
 
-          {/* CONTRASEÑA */}
-          <div className="form-group">
+          <div>
             <label className="block mb-1 font-semibold text-sm">Contraseña:</label>
             <input
               type="password"
-              placeholder="Ingrese su contraseña"
               value={clave}
               onChange={(e) => setClave(e.target.value)}
-              className="form-control w-full px-4 py-2 rounded-md bg-[var(--bg-card)] border border-[var(--bg-alt)] focus:border-[var(--primary)] focus:ring-[var(--primary)] focus:ring-2 outline-none"
+              className="w-full px-4 py-2 rounded-md bg-[var(--bg-card)] border border-[var(--bg-alt)]"
             />
           </div>
 
-          {/* Botón */}
           <button
             type="submit"
-            className="button mt-3 w-full py-3 text-center font-semibold rounded-md bg-[var(--primary)] hover:bg-[var(--primary-dark)] transition-transform hover:scale-[1.03]"
+            className="button w-full py-3 bg-[var(--primary)] hover:bg-[var(--primary-dark)]"
           >
             Ingresar
           </button>
         </form>
 
-        {/* Registro */}
         <div className="mt-8 text-center">
-          <p className="text-sm text-[var(--text-light)]">¿No tienes cuenta?</p>
+          <p className="text-sm text-[var(--text-light)]">
+            ¿No tienes cuenta?
+          </p>
 
           <Link
             href="/registro"
-            className="button mt-3 inline-block px-6 py-3 bg-[var(--primary)] rounded-md hover:bg-[var(--primary-dark)] transition-transform hover:scale-[1.03)]"
+            className="button mt-3 inline-block px-6 py-3 bg-[var(--primary)]"
           >
             Regístrate aquí
           </Link>

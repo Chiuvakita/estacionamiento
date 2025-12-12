@@ -3,46 +3,106 @@
 import NavbarCliente from "@/components/NavbarCliente";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import {
+  listarVehiculos,
+  eliminarVehiculo as eliminarVehiculoAPI,
+  eliminarTodosVehiculos,
+  Vehiculo,
+} from "@/services/vehiculos";
+import api from "@/services/api";
 
 export default function ListarVehiculosPage() {
-  const [vehiculos, setVehiculos] = useState<any[]>([]);
+  const [vehiculos, setVehiculos] = useState<Vehiculo[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const cargarVehiculos = async () => {
+    try {
+      setLoading(true);
+      const data = await listarVehiculos();
+      setVehiculos(data);
+    } catch (error) {
+      console.error(error);
+      alert("Error al cargar vehículos");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    setVehiculos([
-      { id: 1, patente: "AAA111", marca: "Toyota", modelo: "Corolla", tipo: "Auto" },
-      { id: 2, patente: "BBB222", marca: "Honda", modelo: "Civic", tipo: "Auto" },
-    ]);
+    cargarVehiculos();
   }, []);
 
-  const eliminarVehiculo = (id: number) => {
-    alert(`Vehículo ${id} eliminado (simulación)`);
+  const eliminarVehiculo = async (id: number) => {
+    if (!confirm("¿Eliminar este vehículo?")) return;
+
+    try {
+      await eliminarVehiculoAPI(id);
+      setVehiculos((prev) => prev.filter((v) => v.id !== id));
+    } catch (error) {
+      console.error(error);
+      alert("No se pudo eliminar el vehículo");
+    }
   };
+
+  const eliminarTodos = async () => {
+    if (!confirm("¿Eliminar TODOS tus vehículos? Esta acción no se puede deshacer.")) {
+      return;
+    }
+
+    try {
+      for (const v of vehiculos) {
+        await api.delete(`vehiculos/${v.id}/`);
+      }
+
+      alert("Todos los vehículos fueron eliminados");
+      setVehiculos([]);
+    } catch (error) {
+      console.error(error);
+      alert("Error al eliminar vehículos");
+    }
+  };
+
+
 
   return (
     <div className="min-h-screen bg-[var(--bg)] text-[var(--text)]">
       <NavbarCliente />
 
       <main className="max-w-5xl mx-auto p-8">
-        <h1 className="text-3xl font-bold text-center mb-6">Listado de Vehículos</h1>
+        <h1 className="text-3xl font-bold text-center mb-6">
+          Listado de Vehículos
+        </h1>
 
         {/* Acciones */}
         <div className="flex gap-4 mb-6 flex-wrap">
-          <Link href="/reservas/listar" className="px-5 py-2 rounded-md bg-[var(--primary)] hover:bg-[var(--primary-dark)]">
+          <Link
+            href="/reservas/listar"
+            className="px-5 py-2 rounded-md bg-[var(--primary)] hover:bg-[var(--primary-dark)]"
+          >
             Volver
           </Link>
-          <Link href="/vehiculos/crear" className="px-5 py-2 rounded-md bg-[var(--success)] hover:bg-[var(--success-dark)]">
+
+          <Link
+            href="/vehiculos/crear"
+            className="px-5 py-2 rounded-md bg-[var(--success)] hover:bg-[var(--success-dark)]"
+          >
             Crear
           </Link>
+
           <button
-            onClick={() => alert("Eliminar todos (simulación)")}
+            onClick={eliminarTodos}
             className="px-5 py-2 rounded-md bg-[var(--danger)] hover:bg-[var(--danger-dark)]"
           >
             Eliminar todos
           </button>
+
         </div>
 
         {/* Tabla */}
-        <div className="rounded-[var(--radius)] overflow-hidden shadow" style={{ background: "var(--bg-card)" }}>
+        <div
+          className="rounded-[var(--radius)] overflow-hidden shadow"
+          style={{ background: "var(--bg-card)" }}
+        >
           <table className="w-full border-collapse">
             <thead className="bg-[var(--bg-alt)]">
               <tr>
@@ -56,9 +116,12 @@ export default function ListarVehiculosPage() {
             </thead>
 
             <tbody>
-              {vehiculos.length === 0 && (
+              {!loading && vehiculos.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="p-4 text-center text-[var(--text-light)]">
+                  <td
+                    colSpan={6}
+                    className="p-4 text-center text-[var(--text-light)]"
+                  >
                     No hay vehículos registrados.
                   </td>
                 </tr>
@@ -90,7 +153,6 @@ export default function ListarVehiculosPage() {
                 </tr>
               ))}
             </tbody>
-
           </table>
         </div>
       </main>
