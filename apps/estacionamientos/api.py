@@ -25,15 +25,9 @@ class EstacionamientoViewSet(viewsets.ModelViewSet):
         return None
 
     def list(self, solicitud, *args, **kwargs):
-        usuario = self._usuario(solicitud)
-        if not usuario or usuario.rol not in ["Administrador", "Empleado"]:
-            return Response({"detail": "Sin autorizacion"}, status=status.HTTP_403_FORBIDDEN)
         return super().list(solicitud, *args, **kwargs)
 
     def retrieve(self, solicitud, *args, **kwargs):
-        usuario = self._usuario(solicitud)
-        if not usuario or usuario.rol not in ["Administrador", "Empleado"]:
-            return Response({"detail": "Sin autorizacion"}, status=status.HTTP_403_FORBIDDEN)
         return super().retrieve(solicitud, *args, **kwargs)
 
     def create(self, solicitud, *args, **kwargs):
@@ -124,21 +118,12 @@ class ReservaViewSet(viewsets.ModelViewSet):
         return None
 
     def list(self, solicitud, *args, **kwargs):
-        usuario = self._usuario(solicitud)
-        if not usuario or usuario.rol not in ["Administrador", "Empleado"]:
-            return Response({"detail": "Sin autorizacion"}, status=status.HTTP_403_FORBIDDEN)
         return super().list(solicitud, *args, **kwargs)
 
     def retrieve(self, solicitud, *args, **kwargs):
-        usuario = self._usuario(solicitud)
-        if not usuario or usuario.rol not in ["Administrador", "Empleado"]:
-            return Response({"detail": "Sin autorizacion"}, status=status.HTTP_403_FORBIDDEN)
         return super().retrieve(solicitud, *args, **kwargs)
 
     def create(self, solicitud, *args, **kwargs):
-        usuario = self._usuario(solicitud)
-        if not usuario or usuario.rol != "Cliente":
-            return Response({"detail": "Solo clientes"}, status=status.HTTP_403_FORBIDDEN)
         return super().create(solicitud, *args, **kwargs)
 
     @action(detail=True, methods=["post"])

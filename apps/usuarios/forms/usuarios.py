@@ -89,7 +89,7 @@ class UsuarioForm(forms.ModelForm):
         help_text='Contraseña de al menos 6 caracteres. Déjelo en blanco para no cambiar.'
     )
 
-    confirmar_clave = forms.CharField(
+    confirmarClave = forms.CharField(
         max_length=130,
         label='Confirmar Contraseña',
         required=False,
@@ -147,10 +147,10 @@ class UsuarioForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
         clave = cleaned_data.get('clave')
-        confirmar_clave = cleaned_data.get('confirmar_clave')
+        confirmarclave = cleaned_data.get('confirmarclave')
         # Solo validar si se ingresó alguna contraseña
-        if clave or confirmar_clave:
-            if clave != confirmar_clave:
+        if clave or confirmarclave:
+            if clave != confirmarclave:
                 raise forms.ValidationError('Las contraseñas no coinciden')
         return cleaned_data
 
@@ -227,7 +227,7 @@ class RegistroClienteForm(forms.ModelForm):
         help_text='Contraseña de al menos 6 caracteres'
     )
     
-    confirmar_clave = forms.CharField(
+    confirmarclave = forms.CharField(
         max_length=130,
         label='Confirmar Contraseña',
         widget=forms.PasswordInput(attrs={
@@ -275,10 +275,10 @@ class RegistroClienteForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
         clave = cleaned_data.get('clave')
-        confirmar_clave = cleaned_data.get('confirmar_clave')
+        confirmarclave = cleaned_data.get('confirmarclave')
         
-        if clave and confirmar_clave:
-            if clave != confirmar_clave:
+        if clave and confirmarclave:
+            if clave != confirmarclave:
                 raise forms.ValidationError('Las contraseñas no coinciden')
         
         return cleaned_data

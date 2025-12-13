@@ -24,7 +24,6 @@ export default function ClienteForm({
     discapacidad: false,
     clave: "",
     confirmarClave: "",
-    confirmar_clave: "", // requerido por backend actual
   });
 
   const update = (field: string, value: any) => {
@@ -33,7 +32,13 @@ export default function ClienteForm({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(form);
+    
+    const payload = {
+      ...form,
+      rut: parseInt(form.rut) || 0,
+    };
+    
+    onSubmit(payload);
   };
 
   return (
@@ -54,7 +59,8 @@ export default function ClienteForm({
               type="text"
               className="w-full input-estilo"
               value={form.rut}
-              onChange={(e) => update("rut", e.target.value)}
+              onChange={(e) => update("rut", e.target.value.replace(/\D/g, ''))}
+              placeholder="12345678"
             />
           </div>
 
@@ -122,10 +128,7 @@ export default function ClienteForm({
               type="password"
               className="w-full input-estilo"
               value={form.confirmarClave}
-              onChange={(e) => {
-                update("confirmarClave", e.target.value);
-                update("confirmar_clave", e.target.value);
-              }}
+              onChange={(e) => update("confirmarClave", e.target.value)}
             />
           </div>
 

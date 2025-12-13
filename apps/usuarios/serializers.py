@@ -15,7 +15,7 @@ class UsuarioSerializer(serializers.ModelSerializer):
     def validate(self, datos):
         datosValidacion = datos.copy()
         if 'clave' in datosValidacion:
-            datosValidacion['confirmar_clave'] = datosValidacion['clave']
+            datosValidacion['confirmarclave'] = datosValidacion['clave']
             
         formulario = UsuarioForm(data=datosValidacion, instance=self.instance)
         if not formulario.is_valid():
@@ -48,26 +48,19 @@ class UsuarioSerializer(serializers.ModelSerializer):
         instancia.save()
         return instancia
 
-class RegistroClienteSerializer(serializers.ModelSerializer):
+class RegistroClienteSerializer(serializers.Serializer):
+    rut = serializers.IntegerField()
+    nombre = serializers.CharField(max_length=45)
+    apellidoPaterno = serializers.CharField(max_length=45)
+    apellidoMaterno = serializers.CharField(max_length=45)
+    numeroTelefono = serializers.CharField(max_length=45)
+    discapacidad = serializers.BooleanField(default=False)
     clave = serializers.CharField(write_only=True, min_length=8)
     confirmarClave = serializers.CharField(write_only=True)
-
-    class Meta:
-        model = Usuario
-        fields = ['rut', 'nombre', 'apellidoPaterno', 'apellidoMaterno', 
-                 'numeroTelefono', 'clave', 'confirmarClave', 'discapacidad']
 
     def validate(self, datos):
         if datos['clave'] != datos['confirmarClave']:
             raise serializers.ValidationError({'clave': 'Claves no coinciden'})
-        
-        datosFormulario = datos.copy()
-        datosFormulario.pop('confirmarClave')
-        
-        formulario = RegistroClienteForm(data=datosFormulario)
-        if not formulario.is_valid():
-            raise serializers.ValidationError(formulario.errors)
-        
         return datos
 
     def create(self, datosValidados):
