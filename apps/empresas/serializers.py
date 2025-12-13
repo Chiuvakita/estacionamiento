@@ -3,9 +3,16 @@ from apps.empresas.models import Empresa, Sucursal
 
 
 class EmpresaSerializer(serializers.ModelSerializer):
+    """Serializer para empresas del sistema."""
     class Meta:
         model = Empresa
         fields = '__all__'
+        extra_kwargs = {
+            'nombre': {'help_text': 'Nombre de la empresa (máximo 300 caracteres)'},
+            'telefono': {'help_text': 'Teléfono de contacto de la empresa'},
+            'correo': {'help_text': 'Correo electrónico corporativo'},
+            'direccion': {'help_text': 'Dirección principal de la empresa'}
+        }
     
     def validateNombre(self, valor):
         if not valor or len(valor.strip()) == 0:
@@ -28,11 +35,23 @@ class EmpresaSerializer(serializers.ModelSerializer):
 
 
 class SucursalSerializer(serializers.ModelSerializer):
-    empresaNombre = serializers.CharField(source='empresa.nombre', read_only=True)
+    """Serializer completo para sucursales de empresas."""
+    empresaNombre = serializers.CharField(
+        source='empresa.nombre', 
+        read_only=True,
+        help_text="Nombre de la empresa a la que pertenece la sucursal"
+    )
     
     class Meta:
         model = Sucursal
         fields = '__all__'
+        extra_kwargs = {
+            'empresa': {'help_text': 'ID de la empresa a la que pertenece esta sucursal'},
+            'nombreSucursal': {'help_text': 'Nombre de la sucursal (máximo 100 caracteres)'},
+            'direccion': {'help_text': 'Dirección de la sucursal'},
+            'numero': {'help_text': 'Número de la dirección'},
+            'cantidadEstacionamiento': {'help_text': 'Cantidad total de espacios de estacionamiento (1-1000)'}
+        }
     
     def validateNombreSucursal(self, valor):
         if not valor or len(valor.strip()) == 0:

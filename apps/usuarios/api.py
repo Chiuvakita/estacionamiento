@@ -9,6 +9,22 @@ from .serializers import UsuarioSerializer, RegistroClienteSerializer, UsuarioLo
 
 
 class UsuarioViewSet(viewsets.ModelViewSet):
+    """
+    API para gestión completa de usuarios del sistema.
+    
+    Operaciones:
+    - list: Retorna todos los usuarios (acceso público)
+    - create: Crea un nuevo usuario (requiere rol Admin/Empleado)
+    - retrieve: Obtiene un usuario específico por RUT
+    - update: Actualiza datos de un usuario existente
+    - partial_update: Actualización parcial de usuario
+    - destroy: Elimina un usuario del sistema
+    
+    Acciones adicionales:
+    - registro: Registro público para nuevos clientes
+    - login: Autenticación y generación de token de acceso
+    - logout: Cierra sesión y elimina el token del usuario
+    """
     queryset = Usuario.objects.all()
     lookup_field = 'rut'
     
@@ -99,6 +115,19 @@ class UsuarioViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['post'])
     def registro(self, request):
+        """
+        Registra un nuevo cliente en el sistema.
+        
+        Parámetros requeridos:
+        - rut: RUT del cliente (número entero)
+        - nombre, apellidoPaterno, apellidoMaterno: Datos personales
+        - numeroTelefono: Teléfono de contacto
+        - clave: Contraseña (mínimo 8 caracteres)
+        - confirmarClave: Confirmación de contraseña (debe coincidir)
+        - discapacidad: Booleano indicando si tiene discapacidad
+        
+        Retorna el usuario creado y asigna automáticamente el rol 'Cliente'.
+        """
         serializer = RegistroClienteSerializer(data=request.data)
         if serializer.is_valid():
             usuario = serializer.save()
@@ -113,6 +142,17 @@ class UsuarioViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['post'])
     def login(self, request):
+        """
+        Autentica un usuario y genera un token de acceso.
+        
+        Parámetros:
+        - username: RUT del usuario
+        - clave: Contraseña del usuario
+        
+        Retorna:
+        - token: Token de autenticación para usar en headers (Authorization: Token <token>)
+        - usuario: Datos públicos del usuario autenticado
+        """
         serializer = UsuarioLoginSerializer(data=request.data)
         if serializer.is_valid():
             usuario = serializer.validated_data['usuario']

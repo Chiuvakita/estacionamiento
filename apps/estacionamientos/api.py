@@ -14,6 +14,22 @@ from .views.services import liberar_estacionamiento, ocupar_estacionamiento
 
 
 class EstacionamientoViewSet(viewsets.ModelViewSet):
+    """
+    API para gestión de estacionamientos.
+    
+    Operaciones CRUD disponibles para Admin/Empleado:
+    - list: Lista todos los estacionamientos con su estado y tipo
+    - create: Crea un nuevo espacio de estacionamiento
+    - retrieve: Obtiene detalles de un estacionamiento específico
+    - update/partial_update: Modifica un estacionamiento
+    - destroy: Elimina un estacionamiento
+    
+    Acciones especiales:
+    - ocupar: Marca un estacionamiento como ocupado con una patente
+    - liberar: Libera un estacionamiento ocupado
+    - bulk: Creación masiva de estacionamientos
+    - purge: Elimina todos los estacionamientos (solo Admin/Empleado)
+    """
     permission_classes = [permissions.IsAuthenticated]
     queryset = Estacionamiento.objects.all().order_by("id")
     serializer_class = EstacionamientoSerializer
@@ -58,6 +74,15 @@ class EstacionamientoViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=["post"], url_path="ocupar")
     def ocupar(self, solicitud, pk=None):
+        """
+        Ocupa un estacionamiento disponible con un vehículo.
+        
+        Parámetros:
+        - patente: Patente del vehículo (requerida, 6 caracteres)
+        
+        Solo funciona si el estacionamiento está en estado 'D' (Disponible).
+        Registra el evento en el historial.
+        """
         usuario = self._usuario(solicitud)
         if not usuario or usuario.rol not in ["Administrador", "Empleado"]:
             return Response({"detail": "Sin autorizacion"}, status=status.HTTP_403_FORBIDDEN)
@@ -73,6 +98,11 @@ class EstacionamientoViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=["post"], url_path="liberar")
     def liberar(self, solicitud, pk=None):
+        """
+        Libera un estacionamiento ocupado.
+        
+        Marca el estacionamiento como disponible y cierra el registro en el historial.
+        """
         usuario = self._usuario(solicitud)
         if not usuario or usuario.rol not in ["Administrador", "Empleado"]:
             return Response({"detail": "Sin autorizacion"}, status=status.HTTP_403_FORBIDDEN)
@@ -85,6 +115,15 @@ class EstacionamientoViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=["post"], url_path="bulk")
     def crearMasivo(self, solicitud):
+        """
+        Crea múltiples estacionamientos de forma masiva.
+        
+        Parámetros:
+        - cantidad: Número de estacionamientos a crear (entero, mínimo 1)
+        - tipo: Tipo de estacionamiento ('Normal', 'VIP', 'Discapacitado')
+        
+        Todos los estacionamientos se crean con estado 'D' (Disponible).
+        """
         usuario = self._usuario(solicitud)
         if not usuario or usuario.rol not in ["Administrador", "Empleado"]:
             return Response({"detail": "Sin autorizacion"}, status=status.HTTP_403_FORBIDDEN)
@@ -107,6 +146,17 @@ class EstacionamientoViewSet(viewsets.ModelViewSet):
 
 
 class ReservaViewSet(viewsets.ModelViewSet):
+    """
+    API para gestión de reservas de estacionamientos.
+    
+    Permite a los clientes:
+    - list: Ver sus reservas activas y pasadas
+    - create: Crear una nueva reserva (requiere vehículo, estacionamiento disponible y duración)
+    - retrieve: Ver detalles de una reserva específica
+    
+    Acciones adicionales:
+    - terminar: Finaliza una reserva activa y libera el estacionamiento
+    """
     permission_classes = [permissions.IsAuthenticated]
     queryset = Reserva.objects.select_related("estacionamiento", "vehiculo").order_by("-id")
     serializer_class = ReservaSerializer
@@ -128,6 +178,12 @@ class ReservaViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=["post"])
     def terminar(self, solicitud, pk=None):
+        """
+        Finaliza una reserva activa.
+        
+        Libera el estacionamiento asociado y establece la fecha de término.
+        Accesible para Admin, Empleado y el Cliente dueño de la reserva.
+        """
         usuario = self._usuario(solicitud)
         if not usuario or usuario.rol not in ["Administrador", "Empleado", "Cliente"]:
             return Response({"detail": "Sin autorizacion"}, status=status.HTTP_403_FORBIDDEN)
@@ -141,6 +197,18 @@ class ReservaViewSet(viewsets.ModelViewSet):
 
 
 class HistorialViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    API de solo lectura para historial de uso de estacionamientos.
+    
+    Muestra el registro completo de ocupaciones y reservas de estacionamientos.
+    Solo accesible para usuarios con rol Admin o Empleado.
+    
+    Incluye:
+    - Estacionamiento utilizado
+    - Vehículo asociado
+    - Fecha de inicio y término
+    - Si fue reserva o ocupación directa
+    """
     permission_classes = [permissions.IsAuthenticated]
     queryset = Historial.objects.select_related("estacionamiento", "vehiculo").order_by("-fecha_inicio")
     serializer_class = HistorialSerializer

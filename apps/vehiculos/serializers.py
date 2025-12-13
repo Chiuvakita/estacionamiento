@@ -3,9 +3,16 @@ from .models import Vehiculo
 
 
 class VehiculoSerializer(serializers.ModelSerializer):
+    """Serializer para vehículos registrados en el sistema."""
     class Meta:
         model = Vehiculo
         fields = '__all__'
+        extra_kwargs = {
+            'patente': {'help_text': 'Patente del vehículo (6 caracteres alfanuméricos, ej: ABC123)'},
+            'marca': {'help_text': 'Marca del vehículo (máximo 50 caracteres)'},
+            'modelo': {'help_text': 'Modelo del vehículo (máximo 50 caracteres)'},
+            'tipo': {'help_text': 'Tipo de vehículo (ej: Automóvil, Camioneta, Motocicleta)'}
+        }
     
     def validatePatente(self, valor):
         if not valor or len(valor.strip()) == 0:

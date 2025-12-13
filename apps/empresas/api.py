@@ -8,6 +8,19 @@ from apps.usuarios.models import Usuario
 
 
 class EmpresaViewSet(viewsets.ModelViewSet):
+    """
+    API para gestión de empresas del sistema.
+    
+    CRUD completo disponible para Admin/Empleado:
+    - list: Lista todas las empresas registradas
+    - create: Registra una nueva empresa
+    - retrieve: Obtiene detalles de una empresa
+    - update/partial_update: Modifica datos de empresa
+    - destroy: Elimina una empresa
+    
+    Acción adicional:
+    - sucursales: Lista todas las sucursales de una empresa específica
+    """
     queryset = Empresa.objects.all()
     serializer_class = EmpresaSerializer
     permission_classes = [IsAuthenticated]
@@ -100,6 +113,14 @@ class EmpresaViewSet(viewsets.ModelViewSet):
     
     @action(detail=True, methods=['get'])
     def sucursales(self, solicitud, pk=None):
+        """
+        Lista todas las sucursales asociadas a una empresa.
+        
+        Retorna información completa de cada sucursal incluyendo:
+        - Nombre de la sucursal
+        - Dirección y número
+        - Cantidad de estacionamientos
+        """
         usuario = self._usuario(solicitud)
         if not usuario or usuario.rol not in ["Administrador", "Empleado"]:
             return Response({"detail": "Sin autorizacion"}, status=status.HTTP_403_FORBIDDEN)
@@ -116,6 +137,16 @@ class EmpresaViewSet(viewsets.ModelViewSet):
 
 
 class SucursalViewSet(viewsets.ModelViewSet):
+    """
+    API para gestión de sucursales de empresas.
+    
+    CRUD completo para Admin/Empleado:
+    - list: Lista sucursales (filtrable por empresa con query param empresa_id)
+    - create: Crea una nueva sucursal asociada a una empresa
+    - retrieve: Obtiene detalles de una sucursal
+    - update/partial_update: Modifica datos de sucursal
+    - destroy: Elimina una sucursal
+    """
     queryset = Sucursal.objects.all()
     serializer_class = SucursalSerializer
     permission_classes = [IsAuthenticated]

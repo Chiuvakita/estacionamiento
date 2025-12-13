@@ -8,6 +8,19 @@ from apps.usuarios.models import Usuario
 
 
 class VehiculoViewSet(viewsets.ModelViewSet):
+    """
+    API para gestión de vehículos registrados.
+    
+    Operaciones disponibles:
+    - list: Lista todos los vehículos registrados
+    - create: Registra un nuevo vehículo
+    - retrieve: Obtiene información de un vehículo específico
+    - update/partial_update: Modifica datos de un vehículo
+    - destroy: Elimina un vehículo del sistema
+    
+    Acción adicional:
+    - purge: Elimina todos los vehículos (solo Admin/Empleado)
+    """
     queryset = Vehiculo.objects.all().order_by("patente")
     serializer_class = VehiculoSerializer
     permission_classes = [IsAuthenticated]

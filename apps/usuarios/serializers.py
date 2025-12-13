@@ -5,7 +5,12 @@ from .models import Usuario
 from .forms.usuarios import UsuarioForm, RegistroClienteForm
 
 class UsuarioSerializer(serializers.ModelSerializer):
-    clave = serializers.CharField(write_only=True, required=False)
+    """Serializer completo para Usuario con todos los campos y validaciones."""
+    clave = serializers.CharField(
+        write_only=True, 
+        required=False,
+        help_text="Contraseña del usuario (mínimo 8 caracteres). Solo escritura, no se retorna en respuestas."
+    )
 
     class Meta:
         model = Usuario
@@ -49,14 +54,15 @@ class UsuarioSerializer(serializers.ModelSerializer):
         return instancia
 
 class RegistroClienteSerializer(serializers.Serializer):
-    rut = serializers.IntegerField()
-    nombre = serializers.CharField(max_length=45)
-    apellidoPaterno = serializers.CharField(max_length=45)
-    apellidoMaterno = serializers.CharField(max_length=45)
-    numeroTelefono = serializers.CharField(max_length=45)
-    discapacidad = serializers.BooleanField(default=False)
-    clave = serializers.CharField(write_only=True, min_length=8)
-    confirmarClave = serializers.CharField(write_only=True)
+    """Serializer para registro público de nuevos clientes."""
+    rut = serializers.IntegerField(help_text="RUT del cliente (sin puntos ni guión, solo números)")
+    nombre = serializers.CharField(max_length=45, help_text="Nombre del cliente")
+    apellidoPaterno = serializers.CharField(max_length=45, help_text="Apellido paterno")
+    apellidoMaterno = serializers.CharField(max_length=45, help_text="Apellido materno")
+    numeroTelefono = serializers.CharField(max_length=45, help_text="Número de teléfono de contacto")
+    discapacidad = serializers.BooleanField(default=False, help_text="Indica si el cliente tiene alguna discapacidad")
+    clave = serializers.CharField(write_only=True, min_length=8, help_text="Contraseña (mínimo 8 caracteres)")
+    confirmarClave = serializers.CharField(write_only=True, help_text="Confirmación de contraseña (debe coincidir con 'clave')")
 
     def validate(self, datos):
         if datos['clave'] != datos['confirmarClave']:
@@ -83,8 +89,9 @@ class RegistroClienteSerializer(serializers.Serializer):
         return usuario
 
 class UsuarioLoginSerializer(serializers.Serializer):
-    username = serializers.CharField()
-    clave = serializers.CharField()
+    """Serializer para autenticación de usuarios."""
+    username = serializers.CharField(help_text="RUT del usuario (como cadena de texto)")
+    clave = serializers.CharField(help_text="Contraseña del usuario")
 
     def validate(self, datos):
         username = datos['username']
